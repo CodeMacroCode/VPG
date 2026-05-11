@@ -67,14 +67,14 @@ export function Menu({ isOpen }: MenuProps) {
                         <Tooltip delayDuration={100}>
                           <TooltipTrigger asChild>
                             <Button
-                              variant={
-                                (active === undefined &&
+                              variant="ghost"
+                              className={cn(
+                                "w-full justify-start h-10 mb-1",
+                                ((active === undefined &&
                                   pathname.startsWith(href)) ||
-                                active
-                                  ? "secondary"
-                                  : "ghost"
-                              }
-                              className="w-full justify-start h-10 mb-1"
+                                  active) &&
+                                  "bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent/90"
+                              )}
                               asChild
                             >
                               <Link href={href}>
