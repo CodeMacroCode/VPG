@@ -12,7 +12,10 @@ import {
   User,
   LocateIcon,
   Store,
-  LucideView
+  LucideView,
+  Calendar,
+  ShieldCheck,
+  ShoppingCart
 } from "lucide-react";
 
 type Submenu = {
@@ -84,6 +87,24 @@ export function getMenuList(pathname: string): Group[] {
           submenus: []
         },
         {
+          href: "/calendar",
+          label: "Calendar",
+          icon: Calendar,
+          submenus: []
+        },
+        {
+          href: "/tasks",
+          label: "Task",
+          icon: Workflow,
+          submenus: []
+        },
+        {
+          href: "/Attendance-policy",
+          label: "Attendance Policy",
+          icon: ShieldCheck,
+          submenus: []
+        },
+        {
           href: "/livetracking",
           label: "Live Tracking",
           icon: LucideView,
@@ -101,6 +122,25 @@ export function getMenuList(pathname: string): Group[] {
             {
               href: "/project",
               label: "Project"
+            }
+          ]
+        },
+        {
+          href: "",
+          icon: ShoppingCart,
+          label: "Purchase",
+          submenus: [
+            {
+              href: "/indent",
+              label: "Indent List"
+            },
+            {
+              href: "/quotation",
+              label: "Quotation Requests"
+            },
+            {
+              href: "/purchase-order",
+              label: "Purchase Orders"
             }
           ]
         },
