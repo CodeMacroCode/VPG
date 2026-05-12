@@ -1,13 +1,19 @@
 "use client"
 
-// Force recompile: 2026-05-12T02:04:00
-import { useState } from "react"
-import { RefreshCw, User, MoreVertical, Navigation, MapPin, Plus, Minus } from "lucide-react"
+import { useState, useMemo } from "react"
+import dynamic from "next/dynamic"
+import { RefreshCw, Navigation, MapPin, Plus, Minus } from "lucide-react"
 import { ContentLayout } from "@/components/admin-panel/content-layout"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
+
+// Dynamically import MapView to avoid window is not defined error
+const MapView = dynamic(() => import("@/components/live-tracking/map-view"), { 
+  ssr: false,
+  loading: () => <div className="h-full w-full bg-zinc-100 animate-pulse flex items-center justify-center font-bold text-zinc-400">Loading Map Engine...</div>
+})
 
 type ActiveUser = {
   id: string
@@ -16,73 +22,104 @@ type ActiveUser = {
   color: string
   status: "Active" | "Pending" | "Away"
   location: string
+  lat: number
+  lng: number
   avatar?: string
 }
 
 const activeUsers: ActiveUser[] = [
-  { id: "1", name: "Assa Singh", initials: "AS", color: "bg-rose-500", status: "Active", location: "Marbella Twin Towers" },
-  { id: "6", name: "Rajwalia", initials: "RA", color: "bg-cyan-500", status: "Pending", location: "Marbella Royce" },
+  { 
+    id: "1", 
+    name: "Assa Singh", 
+    initials: "AS", 
+    color: "bg-rose-500", 
+    status: "Active", 
+    location: "Marbella Twin Towers",
+    lat: 30.7866602,
+    lng: 76.7546189
+  },
+  { 
+    id: "6", 
+    name: "Rajwalia", 
+    initials: "RA", 
+    color: "bg-cyan-500", 
+    status: "Pending", 
+    location: "Marbella Royce",
+    lat: 30.63337829999999,
+    lng: 76.7264209
+  },
 ]
 
 export default function LiveTrackingPage() {
-  const [selectedUserId, setSelectedUserId] = useState<string | null>("1")
+  const [selectedUserId, setSelectedUserId] = useState<string>("1")
+
+  const selectedUser = useMemo(() => 
+    activeUsers.find(u => u.id === selectedUserId) || activeUsers[0],
+    [selectedUserId]
+  )
 
   return (
     <ContentLayout title="Live Tracker">
       <div className="flex h-[calc(100vh-140px)] m-4 overflow-hidden rounded-[2.5rem] bg-zinc-50/50 shadow-2xl border border-white/20 backdrop-blur-sm">
         {/* Sidebar */}
-        <div className="w-[380px] flex flex-col bg-white/80 backdrop-blur-md border-r border-zinc-100">
-          <div className="p-8 pb-6">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-2xl font-black text-zinc-900 tracking-tight">Active Users</h2>
-              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full hover:bg-zinc-100 transition-transform active:rotate-180 duration-500">
-                <RefreshCw className="h-5 w-5 text-zinc-400" />
+        <div className="w-[320px] flex flex-col bg-white/95 backdrop-blur-md border-r border-zinc-100 shadow-xl z-20">
+          <div className="p-6 pb-4">
+            <div className="flex items-center justify-between mb-1">
+              <h2 className="text-xl font-black text-zinc-900 tracking-tight uppercase">Team Live</h2>
+              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-zinc-100 transition-colors group">
+                <RefreshCw className="h-4 w-4 text-zinc-400 group-active:rotate-180 transition-transform duration-500" />
               </Button>
             </div>
             <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-                2 Team Members Online
+              <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">
+                {activeUsers.length} Online
               </p>
             </div>
           </div>
 
-          <ScrollArea className="flex-1 px-4">
-            <div className="p-4 space-y-4">
+          <ScrollArea className="flex-1">
+            <div className="px-3 py-2 space-y-1">
               {activeUsers.map((user) => (
-                <div 
+                <div
                   key={user.id}
                   onClick={() => setSelectedUserId(user.id)}
                   className={cn(
-                    "group relative flex items-center gap-5 p-5 rounded-[2rem] cursor-pointer transition-all duration-300",
-                    selectedUserId === user.id 
-                      ? "bg-white shadow-xl shadow-primary/5 border border-primary/10 scale-[1.02]" 
-                      : "bg-transparent border border-transparent hover:bg-white/50 hover:border-zinc-100"
+                    "group relative flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-200 border",
+                    selectedUserId === user.id
+                      ? "bg-zinc-900 border-zinc-900 shadow-lg shadow-zinc-200"
+                      : "bg-transparent border-transparent hover:bg-zinc-50 hover:border-zinc-100"
                   )}
                 >
                   <div className="relative">
-                    <Avatar className={cn("h-14 w-14 rounded-2xl shadow-inner", user.color)}>
+                    <Avatar className={cn("h-10 w-10 rounded-lg shadow-md border border-white/20", user.color)}>
                       <AvatarImage src={user.avatar} />
-                      <AvatarFallback className="text-white font-black text-lg">{user.initials}</AvatarFallback>
+                      <AvatarFallback className=" font-bold text-xs shadow-sm">{user.initials}</AvatarFallback>
                     </Avatar>
                     <div className={cn(
-                      "absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-4 border-white shadow-sm",
-                      user.status === "Active" ? "bg-emerald-500" : user.status === "Pending" ? "bg-amber-500" : "bg-zinc-300"
+                      "absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white shadow-sm",
+                      user.status === "Active" ? "bg-emerald-500" : "bg-amber-500"
                     )} />
                   </div>
-                  
+
                   <div className="flex-1 overflow-hidden">
-                    <div className="flex items-center justify-between mb-0.5">
-                      <h3 className="font-bold text-zinc-900 truncate">{user.name}</h3>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-zinc-400">
-                      <Navigation className="h-3 w-3" />
-                      <p className="text-[10px] font-medium truncate uppercase tracking-tight">{user.location}</p>
+                    <h3 className={cn(
+                      "font-bold text-sm truncate tracking-tight transition-colors",
+                      selectedUserId === user.id ? "text-white" : "text-zinc-900"
+                    )}>{user.name}</h3>
+                    <div className="flex items-center gap-1 text-zinc-400">
+                      <Navigation className="h-2.5 w-2.5" />
+                      <p className={cn(
+                        "text-[9px] font-medium truncate uppercase tracking-tighter",
+                        selectedUserId === user.id ? "text-zinc-400" : "text-zinc-400"
+                      )}>{user.location}</p>
                     </div>
                   </div>
 
                   {selectedUserId === user.id && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
+                    <div className="h-5 w-5 rounded-full bg-white/10 flex items-center justify-center">
+                      <div className="h-1.5 w-1.5 rounded-full bg-white" />
+                    </div>
                   )}
                 </div>
               ))}
@@ -92,51 +129,24 @@ export default function LiveTrackingPage() {
 
         {/* Map Area */}
         <div className="flex-1 relative bg-zinc-100 overflow-hidden">
-          {/* Real Google Map Embed using your API Key */}
-          <iframe 
-            width="100%" 
-            height="100%" 
-            style={{ border: 0 }} 
-            loading="lazy" 
-            allowFullScreen 
-            referrerPolicy="no-referrer-when-downgrade"
-            src="https://www.google.com/maps/embed/v1/view?key=AIzaSyCuk4slyXMzBAh1XocahaRnpkp_2sueWas&center=30.7333,76.7794&zoom=13&maptype=roadmap"
-            className="absolute inset-0 grayscale-[0.2] brightness-[1.05]"
-            title="Live Tracker Map"
-          />
+          <MapView center={[selectedUser.lat, selectedUser.lng]} zoom={13} />
 
           <div className="absolute inset-0 pointer-events-none bg-primary/5" />
-          
-          {/* Floating Action Bar */}
-          <div className="absolute top-8 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-xl px-6 py-3 rounded-3xl shadow-2xl border border-white flex items-center gap-6 z-10">
-             <div className="flex items-center gap-3 pr-6 border-r border-zinc-100">
-                <MapPin className="h-5 w-5 text-primary" />
-                <span className="text-sm font-bold text-zinc-900">En route to Site B</span>
-             </div>
-             <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">ETA</span>
-                <span className="text-sm font-black text-primary">12 MINS</span>
-             </div>
-          </div>
 
-          {/* User Markers */}
-          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer group">
-             <div className="relative">
-                <div className="absolute -inset-6 bg-blue-500/20 rounded-full animate-ping duration-[3000ms]" />
-                <div className="absolute -inset-4 bg-blue-500/10 rounded-full animate-pulse" />
-                <Avatar className="h-12 w-12 border-4 border-white shadow-2xl bg-blue-500 transform transition-transform group-hover:scale-110">
-                  <AvatarFallback className="text-white font-black text-xs">VS</AvatarFallback>
-                </Avatar>
-                {/* Marker Tooltip */}
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 bg-zinc-900 text-white px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity shadow-xl">
-                  Vishal Sharma
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-zinc-900" />
-                </div>
-             </div>
+          {/* Floating Action Bar */}
+          <div className="absolute top-8 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-xl px-6 py-3 rounded-3xl shadow-2xl border border-white flex items-center gap-6 z-[5000] pointer-events-auto">
+            <div className="flex items-center gap-3 pr-6 border-r border-zinc-100">
+              <MapPin className="h-5 w-5 text-primary" />
+              <span className="text-sm font-bold text-zinc-900">{selectedUser.location}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">SIGNAL</span>
+              <span className="text-sm font-black text-emerald-500 uppercase">Strong</span>
+            </div>
           </div>
 
           {/* Map Controls */}
-          <div className="absolute bottom-10 left-10 flex flex-col gap-3">
+          <div className="absolute bottom-10 left-10 flex flex-col gap-3 z-[5000]">
             <Button size="icon" className="h-12 w-12 rounded-2xl bg-white text-zinc-900 hover:bg-zinc-50 shadow-2xl border border-white">
               <Plus className="h-5 w-5" />
             </Button>
@@ -145,15 +155,10 @@ export default function LiveTrackingPage() {
             </Button>
           </div>
 
-          <div className="absolute bottom-10 right-10 flex items-center gap-4">
-             <Button className="h-12 px-6 rounded-2xl bg-primary font-black shadow-xl shadow-primary/20 text-xs tracking-wider uppercase">
-                Focus Tracking
-             </Button>
-          </div>
-
-          {/* Leaflet Attribution Mock */}
-          <div className="absolute bottom-2 right-4 bg-white/60 backdrop-blur-sm px-3 py-1 rounded-full text-[9px] text-zinc-500 font-bold border border-white/50">
-            © LEAFLET | © OPENSTREETMAP
+          <div className="absolute bottom-10 right-10 flex items-center gap-4 z-[5000]">
+            <Button className="h-12 px-6 rounded-2xl bg-primary font-black shadow-xl shadow-primary/20 text-xs tracking-wider uppercase text-white">
+              Focus Tracking
+            </Button>
           </div>
         </div>
       </div>

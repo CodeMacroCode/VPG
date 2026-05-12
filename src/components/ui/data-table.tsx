@@ -87,22 +87,22 @@ export function DataTable<TData, TValue>({
         <div className="flex flex-1 items-center space-x-2">
         </div>
       </div>
-      <div className="w-full overflow-hidden">
+      <div className="w-full overflow-hidden border border-slate-200 rounded-xl shadow-sm bg-white">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-transparent border-b border-zinc-100">
+              <TableRow key={headerGroup.id} className="hover:bg-transparent border-b border-slate-200 bg-slate-50/50">
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead 
                       key={header.id} 
-                      className="h-14 p-0"
+                      className="h-12 p-0 border-l border-slate-200 first:border-l-0 text-primary"
                     >
                       {header.isPlaceholder ? null : (
                         <div
                           className={cn(
-                            "flex items-center gap-2 px-6 h-full w-full",
-                            header.column.getCanSort() && "cursor-pointer select-none hover:bg-zinc-50 transition-colors"
+                            "flex items-center gap-2 px-6 h-full w-full text-primary font-bold uppercase tracking-wider text-[11px]",
+                            header.column.getCanSort() && "cursor-pointer select-none hover:bg-zinc-100/50 transition-colors"
                           )}
                           onClick={header.column.getToggleSortingHandler()}
                         >
@@ -111,7 +111,7 @@ export function DataTable<TData, TValue>({
                             header.getContext()
                           )}
                           {header.column.getCanSort() && (
-                            <ArrowUpDown className="ml-2 h-3 w-3 text-zinc-400" />
+                            <ArrowUpDown className="ml-2 h-3 w-3 text-primary/50" />
                           )}
                         </div>
                       )}
@@ -128,7 +128,7 @@ export function DataTable<TData, TValue>({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   className={cn(
-                    "group border-b border-zinc-50 last:border-0",
+                    "group border-b border-slate-200 last:border-b-0",
                     onRowClick && "cursor-pointer"
                   )}
                   onClick={() => onRowClick?.(row.original)}
@@ -136,7 +136,7 @@ export function DataTable<TData, TValue>({
                   {row.getVisibleCells().map((cell) => (
                     <TableCell 
                       key={cell.id} 
-                      className="py-4 px-6 group-hover:bg-zinc-50/50 transition-colors"
+                      className="py-4 px-6 group-hover:bg-slate-50/50 transition-colors border-l border-slate-200 first:border-l-0"
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
@@ -153,19 +153,21 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-between px-2">
-        <div className="flex-1 text-sm text-muted-foreground">
-           Showing {table.getRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s).
+      <div className="flex items-center justify-between px-6 py-4 bg-slate-50/50 rounded-b-3xl border-t border-slate-100">
+        <div className="flex-1 text-sm font-medium text-zinc-500">
+           Showing <span className="text-zinc-900 font-bold">{table.getRowModel().rows.length}</span> of{" "}
+          <span className="text-zinc-900 font-bold">{table.getFilteredRowModel().rows.length}</span> results
         </div>
         <div className="flex items-center space-x-6 lg:space-x-8">
           <div className="flex items-center space-x-2">
-            <p className="text-sm font-medium">Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}</p>
+            <p className="text-sm font-bold text-zinc-500">
+              Page <span className="text-primary">{table.getState().pagination.pageIndex + 1}</span> of {table.getPageCount()}
+            </p>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-1">
             <Button
               variant="outline"
-              className="h-8 w-8 p-0"
+              className="h-9 w-9 p-0 rounded-xl border-slate-200 hover:bg-white hover:text-primary transition-all shadow-sm active:scale-95"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
             >
@@ -174,7 +176,7 @@ export function DataTable<TData, TValue>({
             </Button>
             <Button
               variant="outline"
-              className="h-8 w-8 p-0"
+              className="h-9 w-9 p-0 rounded-xl border-slate-200 hover:bg-white hover:text-primary transition-all shadow-sm active:scale-95"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
             >

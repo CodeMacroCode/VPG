@@ -1,20 +1,26 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { ColumnDef } from "@tanstack/react-table"
 import { 
   Plus,
   MoreVertical,
-  Zap,
-  Building2,
-  Calendar,
-  CreditCard
+  Eye,
+  Pencil,
+  Printer
 } from "lucide-react"
 
 import { ContentLayout } from "@/components/admin-panel/content-layout"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/data-table"
 import { Badge } from "@/components/ui/badge"
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 
 type PurchaseOrder = {
@@ -52,6 +58,7 @@ const MOCK_POS: PurchaseOrder[] = [
 ]
 
 export default function PurchaseOrderPage() {
+  const router = useRouter()
   const [data] = useState<PurchaseOrder[]>(MOCK_POS)
 
   const columns: ColumnDef<PurchaseOrder>[] = [
@@ -113,11 +120,34 @@ export default function PurchaseOrderPage() {
     },
     {
       id: "actions",
-      header: "Action",
+      header: () => <div className="text-right pr-4">Action</div>,
       cell: ({ row }) => (
-        <div className="flex justify-end pr-4">
-           <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full hover:bg-zinc-100">
-              <MoreVertical className="h-4 w-4 text-zinc-400" />
+        <div className="flex items-center justify-end gap-1 pr-4">
+           <Button 
+             variant="ghost" 
+             size="icon" 
+             onClick={() => router.push(`/purchase-order/${row.original.id}`)}
+             className="h-8 w-8 rounded-lg hover:bg-zinc-100 text-zinc-400 hover:text-zinc-600 transition-all"
+             title="View Details"
+           >
+              <Eye className="h-4 w-4" />
+           </Button>
+           <Button 
+             variant="ghost" 
+             size="icon" 
+             onClick={() => router.push(`/purchase-order/${row.original.id}/edit`)}
+             className="h-8 w-8 rounded-lg hover:bg-emerald-50 text-zinc-400 hover:text-emerald-600 transition-all"
+             title="Edit Order"
+           >
+              <Pencil className="h-4 w-4" />
+           </Button>
+           <Button 
+             variant="ghost" 
+             size="icon" 
+             className="h-8 w-8 rounded-lg hover:bg-amber-50 text-zinc-400 hover:text-amber-600 transition-all"
+             title="Print PO"
+           >
+              <Printer className="h-4 w-4" />
            </Button>
         </div>
       ),
@@ -133,30 +163,13 @@ export default function PurchaseOrderPage() {
            <h1 className="text-3xl font-black text-zinc-900 tracking-tight">Purchase Orders</h1>
            
            <div className="flex items-center gap-4">
-              <Button className="h-12 px-8 rounded-2xl bg-primary font-black shadow-lg shadow-primary/20 gap-2">
+              <Button 
+                onClick={() => router.push("/purchase-order/new")}
+                className="h-12 px-8 rounded-2xl bg-primary font-black shadow-lg shadow-primary/20 gap-2"
+              >
                  <Plus className="h-5 w-5" /> Create New Order
               </Button>
            </div>
-        </div>
-
-        {/* Global Strategy Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-           {[
-             { label: "Active Orders", val: "24", icon: Zap, color: "text-primary", bg: "bg-primary/10" },
-             { label: "Fulfillment Rate", val: "92%", icon: Building2, color: "text-amber-500", bg: "bg-amber-50" },
-             { label: "Pending Delivery", val: "08", icon: Calendar, color: "text-emerald-500", bg: "bg-emerald-50" },
-             { label: "Total Committed", val: "₹4.8L", icon: CreditCard, color: "text-zinc-600", bg: "bg-zinc-100" },
-           ].map((stat, i) => (
-             <div key={i} className="bg-white p-6 rounded-[2rem] border border-zinc-100 shadow-sm flex items-center gap-6 group hover:shadow-xl transition-all cursor-pointer">
-                <div className={cn("h-12 w-12 rounded-xl flex items-center justify-center", stat.bg)}>
-                   <stat.icon className={cn("h-6 w-6", stat.color)} />
-                </div>
-                <div className="flex flex-col">
-                   <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{stat.label}</span>
-                   <span className="text-xl font-black text-zinc-900 tracking-tighter">{stat.val}</span>
-                </div>
-             </div>
-           ))}
         </div>
 
         {/* Board */}

@@ -5,17 +5,16 @@ import {
   LayoutGrid,
   LucideIcon,
   Scale,
-  Group,
-  LayoutDashboard,
   Settings,
   Workflow,
   User,
   LocateIcon,
   Store,
-  LucideView,
   Calendar,
   ShieldCheck,
-  ShoppingCart
+  ShoppingCart,
+  LayoutDashboard,
+  LucideView
 } from "lucide-react";
 
 type Submenu = {
@@ -40,68 +39,18 @@ type Group = {
 export function getMenuList(pathname: string): Group[] {
   return [
     {
-      groupLabel: "",
+      groupLabel: "MAIN MENU",
       menus: [
         {
           href: "/dashboard",
           label: "Dashboard",
           icon: LayoutGrid,
           submenus: []
-        }
-      ]
-    },
-    {
-      groupLabel: "Contents",
-      menus: [
-        // {
-        //   href: "",
-        //   label: "Staff",
-        //   icon: User,
-        //   submenus: [
-        //     {
-        //       href: "/staff",
-        //       label: "Staff"
-        //     },
-        //     {
-        //       href: "/staff/indent",
-        //       label: "Indent Request"
-        //     }
-        //   ]
-        // },
+        },
         {
           href: "/users",
-          label: "Users",
+          label: "Staff",
           icon: User,
-          submenus: []
-        },
-        {
-          href: "/geofence",
-          label: "Geofence",
-          icon: LocateIcon,
-          submenus: []
-        },
-        {
-          href: "/stores",
-          label: "Stores",
-          icon: Store,
-          submenus: []
-        },
-        {
-          href: "/calendar",
-          label: "Calendar",
-          icon: Calendar,
-          submenus: []
-        },
-        {
-          href: "/tasks",
-          label: "Task",
-          icon: Workflow,
-          submenus: []
-        },
-        {
-          href: "/Attendance-policy",
-          label: "Attendance Policy",
-          icon: ShieldCheck,
           submenus: []
         },
         {
@@ -109,21 +58,6 @@ export function getMenuList(pathname: string): Group[] {
           label: "Live Tracking",
           icon: LucideView,
           submenus: []
-        },
-        {
-          href: "",
-          icon: Workflow,
-          label: "Project",
-          submenus: [
-            {
-              href: "/item",
-              label: "Item"
-            },
-            {
-              href: "/project",
-              label: "Project"
-            }
-          ]
         },
         {
           href: "",
@@ -145,11 +79,66 @@ export function getMenuList(pathname: string): Group[] {
           ]
         },
         {
+          href: "/geofence",
+          label: "Geofence",
+          icon: LocateIcon,
+          submenus: []
+        },
+        // {
+        //   href: "/stores",
+        //   label: "Stores",
+        //   icon: Store,
+        //   submenus: []
+        // },
+        {
+          href: "/calendar",
+          label: "Calendar",
+          icon: Calendar,
+          submenus: []
+        }
+      ]
+    },
+    {
+      groupLabel: "MANAGEMENT",
+      menus: [
+        {
+          href: "/tasks",
+          label: "Task",
+          icon: Workflow,
+          submenus: []
+        },
+        {
+          href: "/Attendance-policy",
+          label: "Attendance Policy",
+          icon: ShieldCheck,
+          submenus: []
+        },
+        {
+          href: "",
+          icon: Workflow,
+          label: "Project",
+          submenus: [
+            {
+              href: "/item",
+              label: "Item"
+            },
+            {
+              href: "/project",
+              label: "Project"
+            }
+          ]
+        },
+        {
           href: "/vendor",
           label: "Vendor",
           icon: Scale,
           submenus: []
-        },
+        }
+      ]
+    },
+    {
+      groupLabel: "SETTING & OTHERS",
+      menus: [
         {
           href: "",
           icon: Settings,

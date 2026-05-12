@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Trash2 } from "lucide-react"
+import { Plus, Trash2, Edit2 } from "lucide-react"
 import { ContentLayout } from "@/components/admin-panel/content-layout"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/data-table"
@@ -48,11 +48,21 @@ export default function GeofencePage() {
     },
     {
       id: "actions",
-      header: "",
+      header: "ACTION",
       cell: () => (
-        <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full text-rose-500 hover:text-rose-600 hover:bg-rose-50">
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setIsDialogOpen(true)}
+            className="h-9 w-9 rounded-full text-zinc-400 hover:text-primary hover:bg-primary/5"
+          >
+            <Edit2 className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full text-rose-500 hover:text-rose-600 hover:bg-rose-50">
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       ),
     },
   ]

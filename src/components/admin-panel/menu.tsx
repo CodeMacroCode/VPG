@@ -69,11 +69,12 @@ export function Menu({ isOpen }: MenuProps) {
                             <Button
                               variant="ghost"
                               className={cn(
-                                "w-full justify-start h-10 mb-1",
+                                "w-full justify-start h-11 mb-1 rounded-xl transition-all duration-200",
                                 ((active === undefined &&
                                   pathname.startsWith(href)) ||
-                                  active) &&
-                                  "bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent/90"
+                                  active)
+                                  ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90"
+                                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                               )}
                               asChild
                             >
@@ -81,11 +82,11 @@ export function Menu({ isOpen }: MenuProps) {
                                 <span
                                   className={cn(isOpen === false ? "" : "mr-4")}
                                 >
-                                  <Icon size={18} />
+                                  <Icon size={20} />
                                 </span>
                                 <p
                                   className={cn(
-                                    "max-w-[200px] truncate",
+                                    "max-w-[200px] truncate font-medium",
                                     isOpen === false
                                       ? "-translate-x-96 opacity-0"
                                       : "translate-x-0 opacity-100"
@@ -123,43 +124,31 @@ export function Menu({ isOpen }: MenuProps) {
             </li>
           ))}
           <li className="w-full grow flex items-end">
-            <TooltipProvider disableHoverableContent>
-              <Tooltip delayDuration={100}>
-                <TooltipTrigger asChild>
-                  <div className="w-full flex items-center h-10 mt-5 px-3">
-                    <div className="flex items-center">
-                      <p
-                        className={cn(
-                          "whitespace-nowrap",
-                          isOpen === false ? "opacity-0 hidden" : "opacity-100"
-                        )}
-                      >
-                        Hover Open
-                      </p>
-                    </div>
-                    {isOpen !== false && (
-                      <div className="ml-auto flex items-center space-x-2">
-                        <Switch
-                          id="is-hover-open"
-                          onCheckedChange={(x) =>
-                            setSettings({
-                              isHoverOpen: x
-                            })
-                          }
-                          checked={settings.isHoverOpen}
-                        />
-                        <Label htmlFor="is-hover-open" className="sr-only">
-                          Hover Open
-                        </Label>
-                      </div>
-                    )}
-                  </div>
-                </TooltipTrigger>
-                {isOpen === false && (
-                  <TooltipContent side="right">Settings</TooltipContent>
-                )}
-              </Tooltip>
-            </TooltipProvider>
+            <div className={cn(
+              "w-full flex items-center p-3 mt-5 rounded-2xl bg-muted/50 border border-muted",
+              isOpen === false ? "justify-center" : "gap-3"
+            )}>
+              <div className="relative flex-shrink-0">
+                <img
+                  src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=100&h=100"
+                  alt="User"
+                  className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
+                />
+                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+              </div>
+              <div className={cn(
+                "flex flex-col min-w-0 transition-opacity duration-300",
+                isOpen === false ? "hidden" : "opacity-100"
+              )}>
+                <span className="text-sm font-bold truncate">James William</span>
+                <span className="text-xs text-muted-foreground truncate">william01@gmail.com</span>
+              </div>
+              {isOpen !== false && (
+                <Button variant="ghost" size="icon" className="ml-auto h-8 w-8 text-muted-foreground">
+                  <LogOut size={16} />
+                </Button>
+              )}
+            </div>
           </li>
         </ul>
       </nav>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { ColumnDef } from "@tanstack/react-table"
 import { 
   Plus,
@@ -9,7 +10,10 @@ import {
   Truck,
   FileText,
   Filter,
-  ArrowUpDown
+  ArrowUpDown,
+  Eye,
+  CheckCircle2,
+  XCircle
 } from "lucide-react"
 
 import { ContentLayout } from "@/components/admin-panel/content-layout"
@@ -17,6 +21,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DataTable } from "@/components/ui/data-table"
 import { Badge } from "@/components/ui/badge"
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 
 type Quotation = {
@@ -48,6 +58,7 @@ const MOCK_QUOTATIONS: Quotation[] = [
 ]
 
 export default function QuotationPage() {
+  const router = useRouter()
   const [data] = useState<Quotation[]>(MOCK_QUOTATIONS)
 
   const columns: ColumnDef<Quotation>[] = [
@@ -118,9 +129,27 @@ export default function QuotationPage() {
       header: "Action",
       cell: ({ row }) => (
         <div className="flex justify-end pr-4">
-           <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full hover:bg-zinc-100">
-              <MoreVertical className="h-4 w-4 text-zinc-400" />
-           </Button>
+           <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                 <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full hover:bg-zinc-100">
+                    <MoreVertical className="h-4 w-4 text-zinc-400" />
+                 </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 shadow-2xl border-none">
+                 <DropdownMenuItem 
+                   onClick={() => router.push(`/quotation/${row.original.id}`)}
+                   className="rounded-xl font-bold text-zinc-600 gap-3 py-3 cursor-pointer"
+                 >
+                    <Eye className="h-4 w-4" /> View Details
+                 </DropdownMenuItem>
+                 <DropdownMenuItem className="rounded-xl font-bold text-emerald-600 gap-3 py-3 cursor-pointer focus:bg-emerald-50 focus:text-emerald-600">
+                    <CheckCircle2 className="h-4 w-4" /> Approve Quotation
+                 </DropdownMenuItem>
+                 <DropdownMenuItem className="rounded-xl font-bold text-rose-500 gap-3 py-3 cursor-pointer focus:bg-rose-50 focus:text-rose-600">
+                    <XCircle className="h-4 w-4" /> Reject Quotation
+                 </DropdownMenuItem>
+              </DropdownMenuContent>
+           </DropdownMenu>
         </div>
       ),
     },

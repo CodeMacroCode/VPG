@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { ArrowLeft, Edit2, Mail, Phone, MoreVertical, Plus } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -9,6 +10,9 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DataTable } from "@/components/ui/data-table"
 import { ColumnDef } from "@tanstack/react-table"
+import { StaffForm } from "./staff-form"
+import { NewRequestDialog } from "./new-request-dialog"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
 
 type IndentRequest = {
   id: string
@@ -24,6 +28,18 @@ const mockRequests: IndentRequest[] = [
 ]
 
 export function StaffProfileContent({ id }: { id: string }) {
+  const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+
+  const mockInitialValues = {
+    name: "Julian Casablancas",
+    email: "julian@marbella.estate",
+    phone: "+34 600 123 456",
+    role: "agent",
+    gender: "male",
+    dob: "15/06/1985"
+  }
+
   const columns: ColumnDef<IndentRequest>[] = [
     { accessorKey: "id", header: "ID" },
     { accessorKey: "items", header: "Items" },
@@ -68,14 +84,38 @@ export function StaffProfileContent({ id }: { id: string }) {
           <h1 className="text-3xl font-black text-zinc-900 tracking-tight">Staff Profile</h1>
         </div>
         <div className="flex items-center gap-3">
-           <Button className="h-11 rounded-xl px-6 bg-primary hover:bg-primary/90 font-bold shadow-lg shadow-primary/20">
-            <Plus className="mr-2 h-4 w-4" /> New Request
+          <Button 
+            onClick={() => setIsRequestDialogOpen(true)}
+            className="h-11 rounded-xl px-6 bg-primary hover:bg-primary/90 font-bold shadow-lg shadow-primary/20"
+          >
+            New Request
           </Button>
-          <Button variant="outline" className="h-11 rounded-xl px-6 border-zinc-100 font-bold hover:bg-zinc-50">
+          <Button 
+            variant="outline" 
+            onClick={() => setIsEditDialogOpen(true)}
+            className="h-11 rounded-xl px-6 border-zinc-100 font-bold hover:bg-zinc-50"
+          >
             <Edit2 className="mr-2 h-4 w-4" /> Edit Profile
           </Button>
         </div>
       </div>
+
+      <NewRequestDialog 
+        open={isRequestDialogOpen} 
+        onOpenChange={setIsRequestDialogOpen} 
+      />
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-4xl p-0 overflow-hidden border-none shadow-2xl rounded-[2.5rem]">
+          <div className="max-h-[90vh] overflow-y-auto p-12 custom-scrollbar bg-white">
+            <StaffForm 
+              isDialog 
+              initialValues={mockInitialValues}
+              onSuccess={() => setIsEditDialogOpen(false)} 
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Column: Summary */}
@@ -90,7 +130,7 @@ export function StaffProfileContent({ id }: { id: string }) {
               </div>
               <h3 className="text-2xl font-black text-zinc-900 mb-1">Julian Casablancas</h3>
               <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-8">Senior Sales Agent</p>
-              
+
               <div className="grid grid-cols-2 gap-4 py-6 border-y border-zinc-50">
                 <div>
                   <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1">Properties</p>
@@ -142,7 +182,7 @@ export function StaffProfileContent({ id }: { id: string }) {
                 Indent Requests
               </TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="overview">
               <Card className="border-none shadow-sm rounded-3xl bg-white overflow-hidden">
                 <CardContent className="p-10">

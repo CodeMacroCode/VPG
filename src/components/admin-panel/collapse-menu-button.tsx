@@ -68,9 +68,10 @@ export function CollapseMenuButton({
         <Button
           variant="ghost"
           className={cn(
-            "w-full justify-start h-10 mb-1",
-            isSubmenuActive &&
-              "bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent/90"
+            "w-full justify-start h-11 mb-1 rounded-xl transition-all duration-200",
+            isSubmenuActive
+              ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90"
+              : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
           )}
         >
           <div className="w-full items-center flex justify-between">
@@ -112,9 +113,10 @@ export function CollapseMenuButton({
               key={index}
               variant="ghost"
               className={cn(
-                "w-full justify-start h-10 mb-1",
-                ((active === undefined && pathname === href) || active) &&
-                  "bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent/90"
+                "w-full justify-start h-10 mb-1 rounded-xl transition-all duration-200",
+                ((active === undefined && pathname === href) || active)
+                  ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90"
+                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               )}
               asChild
             >
@@ -147,9 +149,10 @@ export function CollapseMenuButton({
               <Button
                 variant="ghost"
                 className={cn(
-                  "w-full justify-start h-10 mb-1",
-                  isSubmenuActive &&
-                    "bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent/90"
+                  "w-full justify-start h-11 mb-1 rounded-xl transition-all duration-200",
+                  isSubmenuActive
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90"
+                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 )}
               >
                 <div className="w-full items-center flex justify-between">
