@@ -11,7 +11,8 @@ import {
   CheckCircle2,
   Filter,
   Eye,
-  Trash2
+  Check,
+  X
 } from "lucide-react"
 
 import { ContentLayout } from "@/components/admin-panel/content-layout"
@@ -19,12 +20,20 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DataTable } from "@/components/ui/data-table"
 import { Badge } from "@/components/ui/badge"
+import { toast } from "sonner"
 import { 
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { ViewIndentDialog, CreateIndentDialog } from "@/components/indent/indent-dialogs"
 import { cn } from "@/lib/utils"
 
@@ -42,7 +51,7 @@ type Indent = {
     count: number
     preview: string
   }
-  status: "PENDING MANAGER" | "QUOTATION RECEIVED" | "PO CREATED"
+  status: "PENDING MANAGER" | "QUOTATION RECEIVED" | "PO CREATED" | "REJECTED"
   created: string
 }
 
@@ -74,7 +83,14 @@ const MOCK_INDENTS: Indent[] = [
 ]
 
 export default function IndentPage() {
-  const [data] = useState<Indent[]>(MOCK_INDENTS)
+  const [data, setData] = useState<Indent[]>(MOCK_INDENTS)
+
+  const handleStatusChange = (id: string, newStatus: Indent["status"]) => {
+    setData(prev => prev.map(item => 
+      item.id === id ? { ...item, status: newStatus } : item
+    ))
+    toast.success(`Indent ${id} status updated to ${newStatus}`)
+  }
 
   const columns: ColumnDef<Indent>[] = [
     {
@@ -125,56 +141,78 @@ export default function IndentPage() {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
-        const status = row.getValue("status") as string
+        const status = row.original.status
+        const id = row.original.id
+        
         return (
-          <Badge className={cn(
-            "rounded-full px-4 py-1.5 font-black text-[9px] border shadow-sm flex items-center gap-2 w-fit",
-            status === "PENDING MANAGER" ? "bg-amber-50 text-amber-600 border-amber-100" : 
-            status === "QUOTATION RECEIVED" ? "bg-blue-50 text-blue-600 border-blue-100" : 
-            "bg-emerald-50 text-emerald-600 border-emerald-100"
-          )}>
-            {status === "PENDING MANAGER" && <Clock className="h-3 w-3" />}
-            {status === "QUOTATION RECEIVED" && <FileText className="h-3 w-3" />}
-            {status === "PO CREATED" && <CheckCircle2 className="h-3 w-3" />}
-            {status}
-          </Badge>
+          <div className="flex items-center justify-start py-1">
+            <Select 
+              defaultValue={status} 
+              onValueChange={(val) => handleStatusChange(id, val as Indent["status"])}
+            >
+              <SelectTrigger className={cn(
+                "h-9 w-[160px] rounded-xl border-none font-black text-[9px] tracking-[0.15em] uppercase transition-all shadow-sm",
+                status === "PENDING MANAGER" ? "bg-amber-50 text-amber-600 hover:bg-amber-100/50" :
+                status === "QUOTATION RECEIVED" ? "bg-blue-50 text-blue-600 hover:bg-blue-100/50" : 
+                status === "REJECTED" ? "bg-rose-50 text-rose-500 hover:bg-rose-100/50" :
+                "bg-emerald-50 text-emerald-600 hover:bg-emerald-100/50"
+              )}>
+                <div className="flex items-center gap-2">
+                  {status === "PENDING MANAGER" && <Clock className="h-3 w-3" />}
+                  {status === "QUOTATION RECEIVED" && <FileText className="h-3 w-3" />}
+                  {status === "PO CREATED" && <CheckCircle2 className="h-3 w-3" />}
+                  {status === "REJECTED" && <X className="h-3 w-3" />}
+                  <SelectValue />
+                </div>
+              </SelectTrigger>
+              <SelectContent className="rounded-2xl border-zinc-100 shadow-2xl p-1">
+                <SelectItem value="PO CREATED" className="rounded-xl font-bold text-[10px] uppercase tracking-wider py-3 text-emerald-600">Approve</SelectItem>
+                <SelectItem value="REJECTED" className="rounded-xl font-bold text-[10px] uppercase tracking-wider py-3 text-rose-500">Reject</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         )
       },
     },
     {
       accessorKey: "created",
-      header: "Created",
-      cell: ({ row }) => <div className="text-[11px] font-bold text-zinc-500">{row.getValue("created")}</div>,
+      header: "Created Date",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2 text-zinc-500 font-bold text-[11px]">
+          <Clock className="h-3 w-3 text-zinc-300" />
+          {row.getValue("created")}
+        </div>
+      ),
     },
     {
       id: "actions",
-      header: "Action",
-      cell: ({ row }) => (
-        <div className="flex justify-end pr-4">
-           <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                 <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full hover:bg-zinc-100">
-                    <MoreVertical className="h-4 w-4 text-zinc-400" />
-                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 rounded-xl p-2 shadow-2xl border-none">
-                 <ViewIndentDialog 
-                   trigger={
-                     <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="rounded-lg font-bold text-zinc-600 gap-3 py-3 cursor-pointer">
-                        <Eye className="h-4 w-4" /> View Details
-                     </DropdownMenuItem>
-                   }
-                 />
-                 <DropdownMenuItem className="rounded-lg font-bold text-zinc-600 gap-3 py-3 cursor-pointer">
-                    <FileText className="h-4 w-4" /> Export PDF
-                 </DropdownMenuItem>
-                 <DropdownMenuItem className="rounded-lg font-bold text-rose-500 gap-3 py-3 cursor-pointer focus:bg-rose-50 focus:text-rose-600">
-                    <Trash2 className="h-4 w-4" /> Delete Indent
-                 </DropdownMenuItem>
-              </DropdownMenuContent>
-           </DropdownMenu>
-        </div>
-      ),
+      header: () => <div className="text-right pr-6">Operations</div>,
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center justify-end gap-1 pr-4">
+            <ViewIndentDialog 
+              trigger={
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-9 px-3 rounded-xl text-zinc-400 hover:text-primary hover:bg-primary/5 font-bold text-[11px] gap-2 transition-all"
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                  Details
+                </Button>
+              }
+            />
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-9 px-3 rounded-xl text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 font-bold text-[11px] gap-2 transition-all"
+            >
+              <FileText className="h-3.5 w-3.5" />
+              Export
+            </Button>
+          </div>
+        );
+      },
     },
   ]
 
@@ -191,13 +229,13 @@ export default function IndentPage() {
                  <Input placeholder="Search material, vendor..." className="h-12 rounded-2xl bg-white border-zinc-100 pl-11 font-medium shadow-sm" />
                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-300" />
               </div>
-              <CreateIndentDialog 
+              {/* <CreateIndentDialog 
                 trigger={
                   <Button className="h-12 px-8 rounded-2xl bg-primary font-black shadow-lg shadow-primary/20 gap-2">
                      <Plus className="h-5 w-5" /> Create Indent
                   </Button>
                 }
-              />
+              /> */}
            </div>
         </div>
 

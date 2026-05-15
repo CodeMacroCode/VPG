@@ -3,28 +3,16 @@
 import { useState } from "react"
 import { 
   Building2, 
-  Factory, 
-  Banknote, 
-  ShieldCheck, 
-  CheckCircle2,
-  ChevronRight,
-  ChevronLeft,
-  Mail,
-  Globe,
-  Plus,
-  X,
-  Building,
-  Briefcase,
-  Phone,
   User,
-  Zap,
-  FileText,
-  UploadCloud,
-  Calendar,
-  Lock,
-  ArrowRight
+  Phone,
+  Mail,
+  MapPin,
+  Banknote,
+  ShieldCheck,
+  Plus,
+  Save,
+  X
 } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -36,7 +24,6 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
   DialogContent,
@@ -46,429 +33,180 @@ import {
 } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 
-type Step = "profile" | "operations" | "financials" | "governance" | "finalize"
-
-const STEPS: { id: Step; label: string; icon: any }[] = [
-  { id: "profile", label: "PROFILE", icon: Building2 },
-  { id: "operations", label: "OPERATIONS", icon: Factory },
-  { id: "financials", label: "FINANCIALS", icon: Banknote },
-  { id: "governance", label: "GOVERNANCE", icon: ShieldCheck },
-  { id: "finalize", label: "FINALIZE", icon: CheckCircle2 },
-]
-
-function DocumentRow({ label }: { label: string }) {
-  const [isActive, setIsActive] = useState(false)
-  return (
-    <div 
-      onClick={() => setIsActive(!isActive)}
-      className={cn(
-        "flex items-center justify-between px-6 py-8 rounded-2xl border transition-all cursor-pointer my-3",
-        isActive ? "bg-emerald-50/40 border-emerald-200 shadow-sm" : "bg-white border-zinc-100 hover:border-zinc-200"
-      )}
-    >
-       <div className="flex items-center gap-4">
-          <div className={cn(
-            "h-6 w-6 rounded-lg border-2 flex items-center justify-center transition-all",
-            isActive ? "bg-emerald-500 border-emerald-500 text-white" : "border-zinc-200"
-          )}>
-             {isActive && <CheckCircle2 className="h-4 w-4" />}
-          </div>
-          <span className={cn("text-xs font-black transition-colors", isActive ? "text-emerald-900" : "text-zinc-400")}>{label}</span>
-       </div>
-       {isActive && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-          >
-            <Button className="h-8 px-4 bg-primary text-[8px] font-black rounded-lg gap-2 hover:bg-primary/90 shadow-lg shadow-primary/20">
-               <UploadCloud className="h-3 w-3" /> UPLOAD
-            </Button>
-          </motion.div>
-       )}
-    </div>
-  )
-}
-
 export function VendorDialog() {
   const [open, setOpen] = useState(false)
-  const [currentStep, setCurrentStep] = useState<Step>("profile")
-  const currentStepIdx = STEPS.findIndex(s => s.id === currentStep)
 
-  const nextStep = () => {
-    if (currentStepIdx < STEPS.length - 1) {
-      setCurrentStep(STEPS[currentStepIdx + 1].id)
-    }
-  }
+  const SectionHeader = ({ icon: Icon, title }: { icon: any, title: string }) => (
+    <div className="flex items-center gap-3 mb-6 pb-2 border-b border-zinc-100">
+      <div className="h-8 w-8 rounded-lg bg-zinc-50 flex items-center justify-center text-zinc-400">
+        <Icon className="h-4 w-4" />
+      </div>
+      <h2 className="text-xs font-black text-zinc-900 uppercase tracking-[0.2em]">{title}</h2>
+    </div>
+  )
 
-  const prevStep = () => {
-    if (currentStepIdx > 0) {
-      setCurrentStep(STEPS[currentStepIdx - 1].id)
-    }
-  }
+  const FormField = ({ label, placeholder, required = false }: { label: string, placeholder?: string, required?: boolean }) => (
+    <div className="space-y-2">
+      <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-wider">
+        {label} {required && <span className="text-rose-500">*</span>}
+      </Label>
+      <Input 
+        placeholder={placeholder} 
+        className="h-11 rounded-xl bg-zinc-50/50 border-zinc-100 focus:bg-white transition-all font-medium text-sm" 
+      />
+    </div>
+  )
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="h-12 px-8 rounded-2xl bg-primary font-black shadow-xl shadow-primary/20 gap-2">
+        <Button className="h-12 px-8 rounded-2xl bg-zinc-900 text-white font-black shadow-xl shadow-zinc-900/20 gap-2 hover:bg-zinc-800 transition-all">
            <Plus className="h-5 w-5" /> Add Strategic Vendor
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[800px] w-[95vw] max-h-[90vh] p-0 overflow-hidden border-none shadow-2xl rounded-[2rem] flex flex-col">
+      <DialogContent className="sm:max-w-[700px] w-[95vw] max-h-[90vh] p-0 overflow-hidden border-none shadow-2xl rounded-[2rem] flex flex-col bg-white">
         
-        {/* Header Block */}
-        <div className="flex items-center justify-between p-5 bg-zinc-900 text-white shrink-0">
-           <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-white/10 flex items-center justify-center text-primary">
-                 <Building2 className="h-4 w-4" />
+        {/* Modern Header */}
+        <div className="flex items-center justify-between p-8 bg-white shrink-0 border-b border-zinc-50">
+           <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-2xl bg-zinc-900 flex items-center justify-center text-white shadow-lg shadow-zinc-900/20">
+                 <Building2 className="h-6 w-6" />
               </div>
               <div>
-                 <DialogTitle className="text-lg font-black tracking-tight">Add Strategic Vendor</DialogTitle>
-                 <p className="text-white/40 text-[8px] font-bold uppercase tracking-widest leading-none">Partner Deployment</p>
+                 <DialogTitle className="text-2xl font-black tracking-tight text-zinc-900">VENDOR MASTER</DialogTitle>
+                 <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-[0.3em] leading-none mt-1">Partner Registration System</p>
               </div>
            </div>
+           <Button variant="ghost" size="icon" onClick={() => setOpen(false)} className="rounded-full hover:bg-zinc-50">
+              <X className="h-5 w-5 text-zinc-400" />
+           </Button>
         </div>
 
-        {/* Compact Stepper */}
-        <div className="px-8 py-6 bg-white border-b border-zinc-50 shrink-0">
-           <div className="relative flex justify-between max-w-2xl mx-auto">
-              <div className="absolute top-5 left-0 w-full h-[2px] bg-zinc-100 -z-10" />
-              <div 
-                className="absolute top-5 left-0 h-[2px] bg-primary transition-all duration-500 -z-10" 
-                style={{ width: `${(currentStepIdx / (STEPS.length - 1)) * 100}%` }}
-              />
+        {/* Scrollable Form Content */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-8 space-y-12">
+          
+          {/* Vendor Details */}
+          <section>
+            <SectionHeader icon={Building2} title="Vendor Details" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <FormField label="Vendor Name" placeholder="e.g. Marbella Concrete Ltd." required />
+              </div>
+              <FormField label="Company Name" placeholder="Legal registered name" />
+              <FormField label="Vendor Code" placeholder="VND-000" />
+              
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-wider">
+                  Group <span className="text-rose-500">*</span>
+                </Label>
+                <Select>
+                  <SelectTrigger className="h-11 rounded-xl bg-zinc-50/50 border-zinc-100 font-bold text-sm">
+                    <SelectValue placeholder="Select Group" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border-zinc-100 shadow-xl">
+                    <SelectItem value="material">Material Supplier</SelectItem>
+                    <SelectItem value="service">Service Provider</SelectItem>
+                    <SelectItem value="consultant">Consultant</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-              {STEPS.map((step, idx) => {
-                const isCompleted = idx < currentStepIdx
-                const isActive = step.id === currentStep
-                return (
-                  <div key={step.id} className="flex flex-col items-center gap-1.5">
-                     <div className={cn(
-                       "h-9 w-9 rounded-full flex items-center justify-center transition-all duration-300",
-                       isCompleted ? "bg-primary text-white" : 
-                       isActive ? "bg-primary text-white shadow-lg shadow-primary/30 scale-110" : 
-                       "bg-white border-2 border-zinc-100 text-zinc-300"
-                     )}>
-                        {isCompleted ? <CheckCircle2 className="h-5 w-5" /> : <step.icon className="h-3.5 w-3.5" />}
-                     </div>
-                     <span className={cn(
-                       "text-[7px] font-black tracking-widest uppercase transition-all",
-                       isActive ? "text-primary" : "text-zinc-400"
-                     )}>
-                        {step.label}
-                     </span>
-                  </div>
-                )
-              })}
-           </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-wider">
+                  Subgroup
+                </Label>
+                <Select>
+                  <SelectTrigger className="h-11 rounded-xl bg-zinc-50/50 border-zinc-100 font-bold text-sm">
+                    <SelectValue placeholder="Select Subgroup" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border-zinc-100 shadow-xl">
+                    <SelectItem value="civil">Civil Works</SelectItem>
+                    <SelectItem value="electrical">Electrical</SelectItem>
+                    <SelectItem value="plumbing">Plumbing</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </section>
+
+          {/* Contact Information */}
+          <section>
+            <SectionHeader icon={User} title="Contact Information" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField label="Contact Person" placeholder="Name of primary contact" />
+              <FormField label="Mobile Number" placeholder="+91 00000 00000" required />
+              <FormField label="Alternate Number" placeholder="+91 00000 00000" />
+              <FormField label="Email" placeholder="contact@company.com" />
+            </div>
+          </section>
+
+          {/* Business Information */}
+          <section>
+            <SectionHeader icon={ShieldCheck} title="Business Information" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField label="GST Number" placeholder="22AAAAA0000A1Z5" />
+              <FormField label="PAN Number" placeholder="ABCDE1234F" />
+            </div>
+          </section>
+
+          {/* Address Information */}
+          <section>
+            <SectionHeader icon={MapPin} title="Address Information" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <FormField label="Address" placeholder="Full office/factory address" />
+              </div>
+              <FormField label="City" placeholder="Enter city" />
+              <FormField label="State" placeholder="Enter state" />
+              <FormField label="Pincode" placeholder="000000" />
+            </div>
+          </section>
+
+          {/* Bank Details */}
+          <section>
+            <SectionHeader icon={Banknote} title="Bank Details" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField label="Bank Name" placeholder="e.g. HDFC Bank" />
+              <FormField label="Account Number" placeholder="000000000000" />
+              <div className="md:col-span-2">
+                <FormField label="IFSC Code" placeholder="HDFC0000000" />
+              </div>
+            </div>
+          </section>
+
+          {/* Status */}
+          <section>
+            <SectionHeader icon={ShieldCheck} title="Status" />
+            <div className="w-full max-w-[200px]">
+              <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-wider mb-2 block">
+                Lifecycle Status
+              </Label>
+              <Select defaultValue="active">
+                <SelectTrigger className="h-11 rounded-xl bg-zinc-50/50 border-zinc-100 font-bold text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border-zinc-100 shadow-xl">
+                  <SelectItem value="active" className="rounded-lg font-bold text-emerald-600">Active</SelectItem>
+                  <SelectItem value="inactive" className="rounded-lg font-bold text-rose-500">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </section>
+
         </div>
 
-        {/* Main Content Area: Fixed Height for Stability */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar bg-white p-8">
-           <AnimatePresence mode="wait">
-              <motion.div
-                key={currentStep}
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-12"
-              >
-                 {currentStep === "profile" && (
-                   <div className="space-y-12">
-                      {/* Section 1 & 2: Business Profile */}
-                      <div className="space-y-8">
-                         <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                               <Building2 className="h-5 w-5" />
-                            </div>
-                            <h2 className="text-sm font-black text-zinc-900 uppercase tracking-widest">Section 1 & 2: Business Profile</h2>
-                         </div>
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="space-y-3">
-                               <Label className="text-[11px] font-black text-zinc-900 uppercase tracking-tight">Legal Company Name</Label>
-                               <Input placeholder="Enter registered name" className="h-14 rounded-2xl bg-white border border-zinc-100 shadow-sm font-bold" />
-                            </div>
-                            <div className="space-y-3">
-                               <Label className="text-[11px] font-black text-zinc-900 uppercase tracking-tight">Trading Name (If Different)</Label>
-                               <Input placeholder="Enter trading name" className="h-14 rounded-2xl bg-white border border-zinc-100 shadow-sm font-bold" />
-                            </div>
-                            <div className="grid grid-cols-2 gap-6">
-                               <div className="space-y-3">
-                                  <Label className="text-[11px] font-black text-zinc-900 uppercase tracking-tight">Year Established</Label>
-                                  <Input placeholder="YYYY" className="h-14 rounded-2xl bg-white border border-zinc-100 shadow-sm font-bold" />
-                               </div>
-                               <div className="space-y-3">
-                                  <Label className="text-[11px] font-black text-zinc-900 uppercase tracking-tight">Registration No.</Label>
-                                  <Input placeholder="Enter number" className="h-14 rounded-2xl bg-white border border-zinc-100 shadow-sm font-bold" />
-                               </div>
-                            </div>
-                            <div className="space-y-3">
-                               <Label className="text-[11px] font-black text-zinc-900 uppercase tracking-tight">Primary Email Address</Label>
-                               <div className="relative">
-                                  <Input placeholder="contact@company.com" className="h-14 rounded-2xl bg-white border border-zinc-100 shadow-sm font-bold pr-12" />
-                                  <Mail className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-emerald-500" />
-                               </div>
-                            </div>
-                         </div>
-                      </div>
-
-                      {/* Section 3: Contact Details */}
-                      <div className="space-y-8 pt-10 border-t border-zinc-100">
-                         <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-xl bg-zinc-100 flex items-center justify-center text-zinc-400">
-                               <User className="h-5 w-5" />
-                            </div>
-                            <h2 className="text-sm font-black text-zinc-900 uppercase tracking-widest">Section 3: Contact Details</h2>
-                         </div>
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="space-y-3">
-                               <Label className="text-[11px] font-black text-zinc-900 uppercase tracking-tight">Primary Contact Name</Label>
-                               <Input placeholder="Full name" className="h-14 rounded-2xl bg-white border border-zinc-100 shadow-sm font-bold" />
-                            </div>
-                            <div className="space-y-3">
-                               <Label className="text-[11px] font-black text-zinc-900 uppercase tracking-tight">Position / Title</Label>
-                               <Input placeholder="Enter role" className="h-14 rounded-2xl bg-white border border-zinc-100 shadow-sm font-bold" />
-                            </div>
-                         </div>
-                      </div>
-                   </div>
-                 )}
-
-                 {currentStep === "operations" && (
-                    <div className="space-y-12">
-                       <div className="space-y-8">
-                          <div className="flex items-center gap-3">
-                             <div className="h-10 w-10 rounded-xl bg-zinc-100 flex items-center justify-center text-zinc-400">
-                                <Briefcase className="h-5 w-5" />
-                             </div>
-                             <h2 className="text-sm font-black text-zinc-900 uppercase tracking-widest">Section 4: Offerings & Operations</h2>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                             <div className="space-y-3">
-                                <Label className="text-[11px] font-black text-zinc-900 uppercase tracking-tight">Category</Label>
-                                <Select>
-                                   <SelectTrigger className="h-14 rounded-2xl bg-white border border-zinc-100 shadow-sm font-bold">
-                                      <SelectValue placeholder="Select" />
-                                   </SelectTrigger>
-                                   <SelectContent className="rounded-xl">
-                                      <SelectItem value="raw">Raw Materials</SelectItem>
-                                      <SelectItem value="logistics">Logistics</SelectItem>
-                                   </SelectContent>
-                                </Select>
-                             </div>
-                             <div className="space-y-3">
-                                <Label className="text-[11px] font-black text-zinc-900 uppercase tracking-tight">Supply Item</Label>
-                                <Select>
-                                   <SelectTrigger className="h-14 rounded-2xl bg-white border border-zinc-100 shadow-sm font-bold">
-                                      <SelectValue placeholder="Select" />
-                                   </SelectTrigger>
-                                   <SelectContent className="rounded-xl">
-                                      <SelectItem value="item1">Item A</SelectItem>
-                                   </SelectContent>
-                                </Select>
-                             </div>
-                             <div className="space-y-3">
-                                <Label className="text-[11px] font-black text-zinc-900 uppercase tracking-tight">Lead Time</Label>
-                                <Select defaultValue="1-2-weeks">
-                                   <SelectTrigger className="h-14 rounded-2xl bg-white border border-zinc-100 shadow-sm font-bold">
-                                      <SelectValue />
-                                   </SelectTrigger>
-                                   <SelectContent className="rounded-xl">
-                                      <SelectItem value="1-2-weeks">1-2 weeks</SelectItem>
-                                   </SelectContent>
-                                </Select>
-                             </div>
-                          </div>
-                       </div>
-
-                       <div className="space-y-8 pt-10 border-t border-zinc-100">
-                          <div className="flex items-center gap-3">
-                             <div className="h-10 w-10 rounded-xl bg-zinc-100 flex items-center justify-center text-zinc-400">
-                                <Factory className="h-5 w-5" />
-                             </div>
-                             <h2 className="text-sm font-black text-zinc-900 uppercase tracking-widest">Manufacturing Capabilities</h2>
-                          </div>
-                          <div className="space-y-3">
-                             <Label className="text-[11px] font-black text-zinc-900 uppercase tracking-tight">Facility Address</Label>
-                             <Input className="h-14 rounded-2xl bg-white border border-zinc-100 shadow-sm font-bold" />
-                          </div>
-                       </div>
-                    </div>
-                 )}
-
-                 {currentStep === "financials" && (
-                    <div className="space-y-12">
-                       <div className="space-y-8">
-                          <div className="flex items-center gap-3">
-                             <div className="h-10 w-10 rounded-xl bg-zinc-100 flex items-center justify-center text-zinc-400">
-                                <Banknote className="h-5 w-5" />
-                             </div>
-                             <h2 className="text-sm font-black text-zinc-900 uppercase tracking-widest">Section 5: Financial Information</h2>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                             <div className="space-y-3">
-                                <Label className="text-[11px] font-black text-zinc-900 uppercase tracking-tight">Bank Name</Label>
-                                <Input className="h-14 rounded-2xl bg-white border border-zinc-100 shadow-sm font-bold" />
-                             </div>
-                             <div className="space-y-3">
-                                <Label className="text-[11px] font-black text-zinc-900 uppercase tracking-tight">Account Number</Label>
-                                <Input className="h-14 rounded-2xl bg-white border border-zinc-100 shadow-sm font-bold" />
-                             </div>
-                          </div>
-                       </div>
-
-                       {/* Section 7: Business References */}
-                       <div className="space-y-8 pt-10 border-t border-zinc-100">
-                          <div className="flex items-center gap-3">
-                             <div className="h-10 w-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500">
-                                <User className="h-5 w-5" />
-                             </div>
-                             <h2 className="text-sm font-black text-zinc-900 uppercase tracking-widest">Section 7: Business References</h2>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                             {[1, 2].map(ref => (
-                               <div key={ref} className="bg-white p-8 rounded-[2rem] border border-zinc-100 shadow-sm space-y-6">
-                                  <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Reference 0{ref}</span>
-                                  <div className="space-y-4">
-                                     <Input placeholder="Company Name" className="h-14 rounded-2xl bg-zinc-50/50 border-none font-bold" />
-                                     <Input placeholder="Contact Person" className="h-14 rounded-2xl bg-zinc-50/50 border-none font-bold" />
-                                     <div className="grid grid-cols-2 gap-4">
-                                        <div className="relative">
-                                           <Input placeholder="Email" className="h-14 rounded-2xl bg-zinc-50/50 border-none font-bold pr-10" />
-                                           <Mail className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-500" />
-                                        </div>
-                                        <Input placeholder="Phone" className="h-14 rounded-2xl bg-zinc-50/50 border-none font-bold" />
-                                     </div>
-                                  </div>
-                               </div>
-                             ))}
-                          </div>
-                       </div>
-                    </div>
-                 )}
-
-                 {currentStep === "governance" && (
-                    <div className="space-y-12">
-                       <div className="space-y-8">
-                          <div className="flex items-center gap-3">
-                             <div className="h-10 w-10 rounded-xl bg-zinc-100 flex items-center justify-center text-zinc-400">
-                                <ShieldCheck className="h-5 w-5" />
-                             </div>
-                             <h2 className="text-sm font-black text-zinc-900 uppercase tracking-widest">Section 6: Compliance & HSE</h2>
-                          </div>
-                          <div className="space-y-4">
-                             {[
-                               "Do you have a formal Health, Safety & Environmental (HSE) policy?",
-                               "Are you compliant with local environmental regulations?",
-                               "Have you had any major HSE incidents in the last 3 years?"
-                             ].map((q, i) => (
-                                <div key={i} className="flex items-center justify-between p-6 bg-white rounded-2xl border border-zinc-50">
-                                   <span className="text-sm font-bold text-zinc-700">{q}</span>
-                                   <div className="flex items-center gap-6">
-                                      <div className="flex items-center gap-2 cursor-pointer group">
-                                         <div className="h-6 w-6 rounded-full border-2 border-zinc-200 flex items-center justify-center transition-all group-hover:border-primary">
-                                            <div className="h-2.5 w-2.5 rounded-full bg-primary scale-0 group-hover:scale-100 transition-all" />
-                                         </div>
-                                         <span className="text-[9px] font-black uppercase text-zinc-400 group-hover:text-primary">YES</span>
-                                      </div>
-                                      <div className="flex items-center gap-2 cursor-pointer group">
-                                         <div className="h-6 w-6 rounded-full border-2 border-primary flex items-center justify-center">
-                                            <div className="h-2.5 w-2.5 rounded-full bg-primary" />
-                                         </div>
-                                         <span className="text-[9px] font-black uppercase text-primary">NO</span>
-                                      </div>
-                                   </div>
-                                </div>
-                             ))}
-                          </div>
-                       </div>
-                    </div>
-                 )}
-
-                 {currentStep === "finalize" && (
-                    <div className="space-y-12 pb-10">
-                       {/* Section 8: Required Documents Checklist */}
-                       <div className="space-y-8">
-                          <div className="flex items-center gap-3">
-                             <div className="h-10 w-10 rounded-xl bg-zinc-100 flex items-center justify-center text-zinc-400">
-                                <FileText className="h-5 w-5" />
-                             </div>
-                             <h2 className="text-sm font-black text-zinc-900 uppercase tracking-widest">Section 8: Required Documents Checklist</h2>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
-                             {[
-                               { label: "Trade License" },
-                               { label: "VAT Registration Certificate" },
-                               { label: "Certificate of Incorporation" },
-                               { label: "Bank Account Details / Cancelled Cheque" },
-                               { label: "HSE Policy Document" },
-                               { label: "Product Catalog / Brochure" },
-                               { label: "List of Major Customers" },
-                               { label: "Signed Vendor Code of Conduct" },
-                             ].map((doc, i) => (
-                               <DocumentRow key={i} label={doc.label} />
-                             ))}
-                          </div>
-                       </div>
-
-                       {/* Section 9: Declaration & Authorization */}
-                       <div className="bg-zinc-900 rounded-[2.5rem] p-10 space-y-8 text-white shadow-2xl overflow-hidden relative">
-                          <div className="absolute top-0 right-0 p-8 opacity-10">
-                             <Lock className="h-32 w-32" />
-                          </div>
-                          <div className="flex items-center gap-3">
-                             <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center text-primary">
-                                <ShieldCheck className="h-5 w-5" />
-                             </div>
-                             <h2 className="text-sm font-black uppercase tracking-widest">Section 9: Declaration & Authorization</h2>
-                          </div>
-                          <p className="text-sm text-zinc-400 leading-relaxed font-medium">
-                             I/We, the undersigned, hereby declare and confirm that all information provided is true, accurate, and complete. I/We understand that any misrepresentation may result in disqualification or termination. I/We agree to comply with the company's Vendor Code of Conduct and applicable policies.
-                          </p>
-                          <div className="grid grid-cols-2 gap-8">
-                             <div className="space-y-3">
-                                <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-tight">Authorized Signatory Name</Label>
-                                <Input className="h-14 rounded-2xl bg-white/5 border-none font-bold text-white focus:ring-1 focus:ring-primary" />
-                             </div>
-                             <div className="space-y-3">
-                                <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-tight">Designation / Title</Label>
-                                <Input className="h-14 rounded-2xl bg-white/5 border-none font-bold text-white focus:ring-1 focus:ring-primary" />
-                             </div>
-                             <div className="space-y-3">
-                                <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-tight">Date</Label>
-                                <div className="relative">
-                                   <Input defaultValue="12/05/2026" className="h-14 rounded-2xl bg-white/5 border-none font-bold text-white pr-12" />
-                                   <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-500" />
-                                </div>
-                             </div>
-                          </div>
-                       </div>
-                    </div>
-                 )}
-              </motion.div>
-           </AnimatePresence>
-        </div>
-
-        {/* Footer Navigation */}
-        <div className="p-8 bg-white border-t border-zinc-100 flex items-center justify-between shrink-0">
+        {/* Action Footer */}
+        <div className="p-8 bg-zinc-50/50 border-t border-zinc-100 flex items-center justify-end gap-4 shrink-0">
            <Button 
              variant="ghost" 
-             className={cn("h-14 px-8 rounded-2xl font-bold gap-2 text-zinc-400", currentStepIdx === 0 && "opacity-0 pointer-events-none")}
-             onClick={prevStep}
+             onClick={() => setOpen(false)}
+             className="h-12 px-8 rounded-2xl font-black text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 transition-all"
            >
-              <ChevronLeft className="h-5 w-5" /> Previous
+              Cancel
            </Button>
-           <div className="flex items-center gap-6">
-              {currentStep !== "finalize" ? (
-                 <Button className="h-14 px-10 rounded-2xl bg-primary font-black shadow-xl shadow-primary/20 gap-3 group" onClick={nextStep}>
-                    Next Step <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                 </Button>
-              ) : (
-                 <Button className="h-14 px-12 rounded-2xl bg-primary font-black shadow-2xl shadow-primary/20 text-white">
-                    Deploy Vendor
-                 </Button>
-              )}
-           </div>
+           <Button className="h-12 px-10 rounded-2xl bg-zinc-900 text-white font-black shadow-xl shadow-zinc-900/20 gap-3 hover:bg-zinc-800 transition-all active:scale-95">
+              <Save className="h-5 w-5" /> Save Vendor
+           </Button>
         </div>
       </DialogContent>
     </Dialog>

@@ -14,7 +14,8 @@ import {
   ShieldCheck,
   ShoppingCart,
   LayoutDashboard,
-  LucideView
+  LucideView,
+  User2
 } from "lucide-react";
 
 type Submenu = {
@@ -116,6 +117,16 @@ export function getMenuList(pathname: string): Group[] {
           label: "Calendar",
           icon: Calendar,
           submenus: []
+        },
+        {
+          href:"/attendance",
+          label:"Attendance",
+          icon:User2
+        },
+        {
+          href:"/leave",
+          label:"Leave",
+          icon:Calendar
         }
       ]
     },

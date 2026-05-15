@@ -278,7 +278,7 @@ export default function TaskDetailsPage({
                   <div className="space-y-4">
                     {[
                       {
-                        action: "Status changed to In Progress",
+                        action: "Status changed to Pending",
                         user: "Admin",
                         date: "May 10, 10:45 AM",
                       },
@@ -332,13 +332,12 @@ export default function TaskDetailsPage({
                   <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
                     Status
                   </label>
-                  <Select defaultValue="in-progress">
-                    <SelectTrigger className="h-10 rounded-lg bg-emerald-50 border-none text-emerald-700 font-bold text-xs focus:ring-0">
+                  <Select defaultValue="pending">
+                    <SelectTrigger className="h-10 rounded-lg bg-zinc-50 border-none text-zinc-600 font-bold text-xs focus:ring-0">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl border-zinc-100 shadow-xl">
                       <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="in-progress">In Progress</SelectItem>
                       <SelectItem value="completed">Completed</SelectItem>
                     </SelectContent>
                   </Select>

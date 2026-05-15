@@ -41,7 +41,7 @@ type Task = {
   project: string;
   projectId: string;
   priority: "High" | "Medium" | "Low";
-  status: "In Progress" | "Completed" | "Pending";
+  status: "Completed" | "Pending";
   dueDate: string;
   assignees: string[];
 };
@@ -55,7 +55,7 @@ const mockTasks: Task[] = [
     project: "Marbella Twin Towers",
     projectId: "p1",
     priority: "High",
-    status: "In Progress",
+    status: "Pending",
     dueDate: "2024-05-20",
     assignees: ["Julian Casablancas", "Sofia Rodriguez"],
   },
@@ -171,9 +171,7 @@ export default function TasksPage() {
             variant={
               status === "Completed"
                 ? "success"
-                : status === "In Progress"
-                  ? "default"
-                  : "secondary"
+                : "secondary"
             }
             className="rounded-full px-4 py-1 font-bold whitespace-nowrap shadow-sm border-none"
           >
@@ -292,7 +290,7 @@ export default function TasksPage() {
 
         <div className="flex flex-col gap-8">
           <div className="flex items-center gap-2 p-1.5 bg-zinc-100/50 backdrop-blur-sm w-fit rounded-[1.25rem] border border-zinc-100">
-            {["All", "In Progress", "Pending", "Completed"].map((filter) => (
+            {["All", "Pending", "Completed"].map((filter) => (
               <Button
                 key={filter}
                 variant={activeFilter === filter ? "white" : "ghost"}

@@ -141,7 +141,7 @@ export default function VendorPage() {
     <ContentLayout title="Strategic Vendors">
       <div className="flex flex-col gap-10 p-6 sm:p-12 max-w-[1700px] mx-auto min-h-screen">
         
-        {/* Header Control Hub */}
+        {/* Header Control Hub
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
            <div className="flex flex-col gap-2">
               <h1 className="text-4xl font-black text-zinc-900 tracking-tighter">Strategic Vendors</h1>
@@ -157,9 +157,9 @@ export default function VendorPage() {
               </Button>
               <VendorDialog />
            </div>
-        </div>
+        </div> */}
 
-        {/* Global Strategy Metrics */}
+        {/* Global Strategy Metrics
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
            {[
              { label: "Active Partners", val: "48", icon: Building2, color: "text-primary", bg: "bg-primary/10" },
@@ -177,17 +177,17 @@ export default function VendorPage() {
                 </div>
              </div>
            ))}
-        </div>
+        </div> */}
 
         {/* Vendor Inventory Board */}
         <div className="bg-white rounded-[2.5rem] p-8 border border-zinc-100 shadow-sm">
            <div className="flex items-center justify-between mb-8 px-4">
-              <div className="flex items-center gap-3">
+              {/* <div className="flex items-center gap-3">
                  <div className="h-10 w-10 rounded-xl bg-zinc-900 flex items-center justify-center text-white">
                     <LayoutGrid className="h-5 w-5" />
                  </div>
                  <h3 className="text-xl font-black text-zinc-900 tracking-tight">Partner Grid</h3>
-              </div>
+              </div> */}
               <div className="relative w-72">
                  <Input placeholder="Scan for partner..." className="h-11 rounded-xl bg-zinc-50 border-none pl-10 font-bold" />
                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-300" />
