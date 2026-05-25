@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
+import apiClient from "@/lib/api-client"
 
 export function LoginForm({
   className,
@@ -20,20 +21,30 @@ export function LoginForm({
     setIsLoading(true)
 
     const formData = new FormData(event.currentTarget)
-    const email = formData.get("email") as string
+    const emailOrMobile = formData.get("email") as string
     const password = formData.get("password") as string
 
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 800))
+    try {
+      const response: any = await apiClient.post("/auth/login", {
+        emailOrMobile,
+        password,
+      })
 
-    if (email === "test@email.com" && password === "123456") {
-      toast.success("Login successful! Redirecting...")
-      router.push("/dashboard")
-    } else {
-      toast.error("Invalid email or password. Please try again.")
+      if (response && response.token) {
+        localStorage.setItem("token", response.token)
+        localStorage.setItem("user", JSON.stringify(response.data))
+        
+        toast.success("Login successful! Redirecting...")
+        router.push("/dashboard")
+      } else {
+        toast.error("Login failed. Unexpected response from server.")
+      }
+    } catch (error: any) {
+      // Errors are already handled and toasted by the apiClient interceptor, 
+      // but we catch here to stop loading and handle local control flow.
+    } finally {
+      setIsLoading(false)
     }
-
-    setIsLoading(false)
   }
 
   return (
@@ -50,12 +61,12 @@ export function LoginForm({
       </div>
       <div className="grid gap-6">
         <div className="grid gap-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">Email or Mobile</Label>
           <Input 
             id="email" 
             name="email"
-            type="email" 
-            placeholder="test@email.com" 
+            type="text" 
+            placeholder="macro@gmail.com" 
             required 
             disabled={isLoading}
           />

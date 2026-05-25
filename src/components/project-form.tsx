@@ -49,11 +49,13 @@ const formSchema = z.object({
 interface ProjectFormProps {
   onSuccess?: () => void
   initialValues?: Partial<z.infer<typeof formSchema>>
+  onSubmit?: (values: any) => Promise<void>
 }
 
-export function ProjectForm({ onSuccess, initialValues }: ProjectFormProps) {
+export function ProjectForm({ onSuccess, initialValues, onSubmit: onSubmitProp }: ProjectFormProps) {
   const [selectedCountry, setSelectedCountry] = useState<string>(initialValues?.country || "")
   const [selectedState, setSelectedState] = useState<string>(initialValues?.state || "")
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -99,9 +101,30 @@ export function ProjectForm({ onSuccess, initialValues }: ProjectFormProps) {
   const allStates = selectedCountry ? State.getStatesOfCountry(selectedCountry) : []
   const allCities = selectedState ? City.getCitiesOfState(selectedCountry, selectedState) : []
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
-    onSuccess?.()
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true)
+    try {
+      const addressPayload = JSON.stringify({
+        streetAddress: values.streetAddress,
+        city: values.city,
+        state: values.state,
+        country: values.country,
+        postalCode: values.postalCode,
+      })
+      const payload = {
+        projectName: values.projectName,
+        address: addressPayload,
+        startDate: values.startDate,
+        notes: values.projectNotes || "",
+        status: values.status === "Active" ? "active" : "inactive" as any,
+      }
+      await onSubmitProp?.(payload)
+      onSuccess?.()
+    } catch (error) {
+      // Handled in hooks
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -146,29 +169,27 @@ export function ProjectForm({ onSuccess, initialValues }: ProjectFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Country <span className="text-destructive">*</span></FormLabel>
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value)
-                    setSelectedCountry(value)
-                    setSelectedState("")
-                    form.setValue("state", "")
-                    form.setValue("city", "")
-                  }}
-                  value={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select country" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent className="max-h-72">
+                <FormControl>
+                  <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    onChange={(e) => {
+                      const val = e.target.value
+                      field.onChange(val)
+                      setSelectedCountry(val)
+                      setSelectedState("")
+                      form.setValue("state", "")
+                      form.setValue("city", "")
+                    }}
+                    value={field.value || ""}
+                  >
+                    <option value="">Select country</option>
                     {allCountries.map((country) => (
-                      <SelectItem key={country.isoCode} value={country.isoCode}>
+                      <option key={country.isoCode} value={country.isoCode}>
                         {country.name}
-                      </SelectItem>
+                      </option>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </select>
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -180,28 +201,26 @@ export function ProjectForm({ onSuccess, initialValues }: ProjectFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>State / Province <span className="text-destructive">*</span></FormLabel>
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value)
-                    setSelectedState(value)
-                    form.setValue("city", "")
-                  }}
-                  value={field.value}
-                  disabled={!selectedCountry}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select state" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent className="max-h-72">
+                <FormControl>
+                  <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    onChange={(e) => {
+                      const val = e.target.value
+                      field.onChange(val)
+                      setSelectedState(val)
+                      form.setValue("city", "")
+                    }}
+                    value={field.value || ""}
+                    disabled={!selectedCountry}
+                  >
+                    <option value="">Select state</option>
                     {allStates.map((state) => (
-                      <SelectItem key={state.isoCode} value={state.isoCode}>
+                      <option key={state.isoCode} value={state.isoCode}>
                         {state.name}
-                      </SelectItem>
+                      </option>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </select>
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -213,24 +232,21 @@ export function ProjectForm({ onSuccess, initialValues }: ProjectFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>City <span className="text-destructive">*</span></FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value}
-                  disabled={!selectedState}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select city" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent className="max-h-72">
+                <FormControl>
+                  <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    onChange={field.onChange}
+                    value={field.value || ""}
+                    disabled={!selectedState}
+                  >
+                    <option value="">Select city</option>
                     {allCities.map((city) => (
-                      <SelectItem key={`${city.name}-${city.latitude}`} value={city.name}>
+                      <option key={`${city.name}-${city.latitude}`} value={city.name}>
                         {city.name}
-                      </SelectItem>
+                      </option>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </select>
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -257,34 +273,18 @@ export function ProjectForm({ onSuccess, initialValues }: ProjectFormProps) {
             name="startDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel className="mb-1">Start Date <span className="text-destructive">*</span></FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={(date) =>
-                        date > new Date() || date < new Date("1900-01-01")
-                      }
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
+                <FormLabel>Start Date <span className="text-destructive">*</span></FormLabel>
+                <FormControl>
+                  <input
+                    type="date"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    onChange={(e) => {
+                      const dateStr = e.target.value
+                      field.onChange(dateStr ? new Date(dateStr) : undefined)
+                    }}
+                    value={field.value ? format(field.value, "yyyy-MM-dd") : ""}
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -298,17 +298,16 @@ export function ProjectForm({ onSuccess, initialValues }: ProjectFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Status <span className="text-destructive">*</span></FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="Active">Active</SelectItem>
-                  <SelectItem value="Inactive">Inactive</SelectItem>
-                </SelectContent>
-              </Select>
+              <FormControl>
+                <select
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  onChange={field.onChange}
+                  value={field.value || ""}
+                >
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -334,10 +333,12 @@ export function ProjectForm({ onSuccess, initialValues }: ProjectFormProps) {
         />
 
         <div className="flex justify-end gap-3 mt-6">
-          <Button variant="outline" type="button" onClick={onSuccess}>
+          <Button variant="outline" type="button" onClick={onSuccess} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button type="submit">Save Project</Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Saving..." : "Save Project"}
+          </Button>
         </div>
       </form>
     </Form>

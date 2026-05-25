@@ -47,6 +47,9 @@ apiClient.interceptors.response.use(
           pagination: res.pagination,
         }
       }
+      if (res.token !== undefined) {
+        return res
+      }
       if (res.data !== undefined) {
         return res.data
       }

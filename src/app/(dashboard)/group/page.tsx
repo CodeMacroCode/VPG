@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback } from "react"
 import { ColumnDef } from "@tanstack/react-table"
-import { Edit, Plus, Trash } from "lucide-react"
+import { Edit, Trash } from "lucide-react"
 
 import { ContentLayout } from "@/components/admin-panel/content-layout"
 import { Button } from "@/components/ui/button"
@@ -149,7 +149,7 @@ export default function GroupPage() {
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold tracking-tight">Group List</h1>
           <Button variant="default" onClick={handleAddNew}>
-            <Plus className="mr-2 h-4 w-4" /> Add Group
+          Add Group
           </Button>
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

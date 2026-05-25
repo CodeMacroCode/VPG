@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback } from "react"
 import { ColumnDef } from "@tanstack/react-table"
-import { Edit, Plus, Trash, Tag, Box, Info } from "lucide-react"
+import { Edit, Trash, Tag, Box, Info } from "lucide-react"
 
 import { ContentLayout } from "@/components/admin-panel/content-layout"
 import { Button } from "@/components/ui/button"
@@ -150,7 +150,7 @@ export default function ItemPage() {
                   />
                   <span className={cn(
                      "text-xs font-bold min-w-[65px] px-2 py-0.5 rounded-full transition-colors text-center",
-                     isBlocked ? "text-rose-700 bg-rose-50 border border-rose-100" : "text-emerald-700 bg-emerald-50 border border-emerald-100"
+                     isBlocked ? "text-emerald-700 bg-emerald-50 border border-emerald-100" : "text-rose-700 bg-rose-50 border border-rose-100"
                   )}>
                      {isBlocked ? "Blocked" : "Not Blocked"}
                   </span>
@@ -204,13 +204,12 @@ export default function ItemPage() {
                   onClick={handleAddNew}
                   className="bg-primary hover:bg-primary/90 text-primary-foreground h-11 px-6 rounded-xl shadow-lg shadow-primary/20 flex items-center gap-2 transition-all active:scale-95 animate-in fade-in-50 duration-300"
                >
-                  <Plus className="h-5 w-5" />
                   <span className="font-bold">Add New Item</span>
                </Button>
             </div>
 
             {/* Table Section */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-2 shadow-sm animate-in fade-in duration-300">
+            {/* <div className="bg-white border border-slate-200 rounded-3xl p-2 shadow-sm animate-in fade-in duration-300">
                <div className="p-4 border-b border-slate-100 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                      <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
@@ -221,7 +220,7 @@ export default function ItemPage() {
                         Total Items: {pagination.totalItems}
                      </div>
                   </div>
-               </div>
+               </div> */}
                
                <DataTable 
                   columns={columns} 
@@ -236,7 +235,7 @@ export default function ItemPage() {
                   onSearchChange={setSearch}
                   onPageChange={(p) => setPage(p + 1)}
                />
-            </div>
+            {/* </div> */}
 
             {/* Dialog */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

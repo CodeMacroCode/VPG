@@ -5,9 +5,7 @@ import Link from "next/link"
 import { ColumnDef } from "@tanstack/react-table"
 import { 
   Edit, 
-  Plus, 
   Trash, 
-  MoreVertical, 
   Clock 
 } from "lucide-react"
 
@@ -24,71 +22,42 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { ProjectForm } from "@/components/project-form"
-
-type Project = {
-  id: number
-  name: string
-  location: string
-  status: "Active" | "Inactive"
-  createdAt: string
-}
-
-const initialData: Project[] = [
-  {
-    id: 1,
-    name: "Terminal 2 Expansion",
-    location: "Mumbai",
-    status: "Active",
-    createdAt: "2024-03-15",
-  },
-  {
-    id: 2,
-    name: "Highway Link Road",
-    location: "Pune",
-    status: "Active",
-    createdAt: "2024-02-20",
-  },
-  {
-    id: 3,
-    name: "Smart City Grid",
-    location: "Bangalore",
-    status: "Inactive",
-    createdAt: "2024-01-10",
-  },
-  {
-    id: 4,
-    name: "Water Filtration Plant",
-    location: "Delhi",
-    status: "Active",
-    createdAt: "2023-12-05",
-  },
-  {
-    id: 5,
-    name: "Metro Phase 4",
-    location: "Hyderabad",
-    status: "Active",
-    createdAt: "2023-11-28",
-  },
-]
+import { useProjects, Project } from "@/hooks/use-projects"
 
 export default function ProjectPage() {
-  const [data, setData] = useState<Project[]>(initialData)
+  const {
+    projects,
+    isLoading,
+    addProject,
+    editProject,
+    removeProject,
+    toggleProjectStatus,
+    page,
+    setPage,
+    limit,
+    search,
+    setSearch,
+    pagination,
+  } = useProjects()
+
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
 
-  const handleStatusToggle = useCallback((id: number) => {
-    setData((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? { ...item, status: item.status === "Active" ? "Inactive" : "Active" }
-          : item
-      )
-    )
-  }, [])
+  const handleStatusToggle = useCallback(async (id: string) => {
+    try {
+      await toggleProjectStatus(id)
+    } catch (error) {
+      // Handled in hook
+    }
+  }, [toggleProjectStatus])
 
-  const handleDelete = useCallback((id: number) => {
-    setData((prev) => prev.filter((item) => item.id !== id))
-  }, [])
+  const handleDelete = useCallback(async (id: string) => {
+    try {
+      await removeProject(id)
+    } catch (error) {
+      // Handled in hook
+    }
+  }, [removeProject])
 
   const handleEdit = useCallback((project: Project) => {
     setEditingProject(project)
@@ -100,12 +69,28 @@ export default function ProjectPage() {
     setIsDialogOpen(true)
   }, [])
 
-  // ... columns definition (kept same as before but ensured it's professional) ...
+  const handleSave = async (payload: any) => {
+    try {
+      if (editingProject) {
+        await editProject(editingProject.id, payload)
+      } else {
+        await addProject(payload)
+      }
+      setIsDialogOpen(false)
+    } catch (error) {
+      throw error
+    }
+  }
+
   const columns = useMemo<ColumnDef<Project>[]>(() => [
     {
       accessorKey: "id",
       header: () => <div className="text-center w-full">S.No</div>,
-      cell: ({ row }) => <div className="text-center w-full font-medium text-zinc-500">{row.index + 1}</div>,
+      cell: ({ row }) => (
+        <div className="text-center w-full font-medium text-zinc-500">
+          {row.index + 1 + (page - 1) * limit}
+        </div>
+      ),
     },
     {
       accessorKey: "name",
@@ -119,15 +104,19 @@ export default function ProjectPage() {
             {row.getValue("name")}
           </span>
           <span className="text-[10px] text-zinc-400 uppercase tracking-tighter font-medium">
-            Project ID: PRJ-00{row.original.id}
+            Project ID: {row.original.id.substring(0, 8).toUpperCase()}
           </span>
         </Link>
       ),
     },
     {
-      accessorKey: "location",
+      accessorKey: "city",
       header: "Location",
-      cell: ({ row }) => <div className="text-zinc-600 font-medium">{row.getValue("location")}</div>,
+      cell: ({ row }) => (
+        <div className="text-zinc-600 font-medium">
+          {row.original.city ? `${row.original.city}, ${row.original.state}` : row.original.streetAddress || "N/A"}
+        </div>
+      ),
     },
     {
       accessorKey: "status",
@@ -187,7 +176,7 @@ export default function ProjectPage() {
         )
       },
     },
-  ], [handleStatusToggle, handleEdit, handleDelete])
+  ], [handleStatusToggle, handleEdit, handleDelete, page, limit])
 
   return (
     <ContentLayout title="Project Management">
@@ -196,29 +185,30 @@ export default function ProjectPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <h1 className="text-3xl font-black tracking-tight text-zinc-900">Project Workspace</h1>
-            <p className="text-zinc-500 text-sm font-medium">Manage and monitor all your ongoing infrastructure projects from one central hub.</p>
+            <p className="text-zinc-500 text-sm font-medium">Manage and monitor all your ongoing projects from one central hub.</p>
           </div>
           <Button 
             onClick={handleAddNew}
             className="bg-primary hover:bg-primary/90 text-primary-foreground h-11 px-6 rounded-xl shadow-lg shadow-primary/20 flex items-center gap-2 transition-all active:scale-95"
           >
-            <Plus className="h-5 w-5" />
             <span className="font-bold">New Project</span>
           </Button>
         </div>
 
-
-
         {/* Table Section */}
-        <div className="bg-white border border-slate-200 rounded-3xl p-2 shadow-sm">
-          <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-              <h2 className="font-bold text-zinc-800">Recent Projects</h2>
-            </div>
-          </div>
-          <DataTable columns={columns} data={data} searchKey="name" />
-        </div>
+        <DataTable 
+          columns={columns} 
+          data={projects} 
+          searchKey="name" 
+          isServerSide={true}
+          pageIndex={page - 1}
+          pageSize={limit}
+          pageCount={pagination.totalPages}
+          totalItems={pagination.totalItems}
+          searchValue={search}
+          onSearchChange={setSearch}
+          onPageChange={(p) => setPage(p + 1)}
+        />
 
         {/* Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -231,14 +221,23 @@ export default function ProjectPage() {
                   : "Fill in the required details to initialize a new project in the system."}
               </DialogDescription>
             </DialogHeader>
-            <ProjectForm 
-              onSuccess={() => setIsDialogOpen(false)} 
-              initialValues={editingProject ? {
-                projectName: editingProject.name,
-                status: editingProject.status,
-                streetAddress: editingProject.location, 
-              } : undefined}
-            />
+            {isDialogOpen && (
+              <ProjectForm 
+                onSuccess={() => setIsDialogOpen(false)} 
+                onSubmit={handleSave}
+                initialValues={editingProject ? {
+                  projectName: editingProject.name,
+                  streetAddress: editingProject.streetAddress,
+                  country: editingProject.country,
+                  state: editingProject.state,
+                  city: editingProject.city,
+                  postalCode: editingProject.postalCode,
+                  status: editingProject.status,
+                  projectNotes: editingProject.notes,
+                  startDate: editingProject.startDate,
+                } : undefined}
+              />
+            )}
           </DialogContent>
         </Dialog>
       </div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useMemo } from "react"
+import { useEffect, useState, useMemo, useRef } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -128,10 +128,18 @@ export function ItemForm({ onSuccess, initialValues, onSubmit: onSubmitProp }: I
     return subGroups.filter((sg) => sg.groupId === groupName)
   }, [groupName, subGroups])
 
-  // Clear subGroup selection if selected groupName changes and old subGroup is no longer matching
+  const prevGroupNameRef = useRef(groupName)
+
+  // Clear subGroup selection only if selected groupName changes and old subGroup is no longer matching
   useEffect(() => {
-    if (subGroup && !filteredSubGroups.some((sg) => sg.id === subGroup)) {
-      form.setValue("subGroup", "")
+    if (prevGroupNameRef.current !== groupName) {
+      if (subGroup && !filteredSubGroups.some((sg) => sg.id === subGroup)) {
+        form.setValue("subGroup", "")
+      }
+      prevGroupNameRef.current = groupName
+    } else if (groupName && filteredSubGroups.length > 0 && prevGroupNameRef.current === groupName) {
+      // Ensure the ref stays in sync if groupName is initialized
+      prevGroupNameRef.current = groupName
     }
   }, [groupName, filteredSubGroups, subGroup, form])
 
