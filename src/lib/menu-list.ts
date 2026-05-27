@@ -17,7 +17,8 @@ import {
   LucideView,
   User2,
   DollarSign,
-  Box
+  Box,
+  Briefcase
 } from "lucide-react";
 
 type Submenu = {
@@ -121,11 +122,6 @@ export function getMenuList(pathname: string): Group[] {
           submenus: []
         },
         {
-          href:"/attendance",
-          label:"Attendance",
-          icon:User2
-        },
-        {
           href:"/leave",
           label:"Leave",
           icon:Calendar
@@ -139,6 +135,23 @@ export function getMenuList(pathname: string): Group[] {
           href:"/material",
           label:"Material",
           icon:Box
+        }
+      ]
+    },
+    {
+      groupLabel: "ATTENDANCE",
+      menus: [
+        {
+          href: "/attendance",
+          label: "Attendance",
+          icon: User2,
+          submenus: []
+        },
+        {
+          href: "/Attendance-policy",
+          label: "Attendance Policy",
+          icon: ShieldCheck,
+          submenus: []
         }
       ]
     },
@@ -158,15 +171,15 @@ export function getMenuList(pathname: string): Group[] {
           submenus: []
         },
         {
-          href: "/tasks",
-          label: "Task Master",
-          icon: Workflow,
+          href: "/buisiness-node",
+          label: "Buisiness Node",
+          icon: Briefcase,
           submenus: []
         },
         {
-          href: "/Attendance-policy",
-          label: "Attendance Policy",
-          icon: ShieldCheck,
+          href: "/tasks",
+          label: "Task Master",
+          icon: Workflow,
           submenus: []
         }
       ]

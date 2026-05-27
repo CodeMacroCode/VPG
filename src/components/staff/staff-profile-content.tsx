@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { ArrowLeft, Edit2, Mail, Phone, MoreVertical, Plus } from "lucide-react"
+import { useState, useEffect, useCallback } from "react"
+import { ArrowLeft, Edit2, Mail, Phone, MoreVertical } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -13,6 +13,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { StaffForm } from "./staff-form"
 import { NewRequestDialog } from "./new-request-dialog"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { useUsers, Staff } from "@/hooks/use-users"
 
 type IndentRequest = {
   id: string
@@ -30,15 +31,25 @@ const mockRequests: IndentRequest[] = [
 export function StaffProfileContent({ id }: { id: string }) {
   const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const { getUserById } = useUsers({ skipFetch: true })
+  const [user, setUser] = useState<Staff | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const mockInitialValues = {
-    name: "Julian Casablancas",
-    email: "julian@VPG.estate",
-    phone: "+34 600 123 456",
-    role: "agent",
-    gender: "male",
-    dob: "15/06/1985"
-  }
+  const fetchUser = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const data = await getUserById(id)
+      setUser(data)
+    } catch (err) {
+      console.error("Failed to load user profile:", err)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [id, getUserById])
+
+  useEffect(() => {
+    fetchUser()
+  }, [fetchUser])
 
   const columns: ColumnDef<IndentRequest>[] = [
     { accessorKey: "id", header: "ID" },
@@ -71,6 +82,22 @@ export function StaffProfileContent({ id }: { id: string }) {
       ),
     },
   ]
+
+  if (isLoading) {
+    return (
+      <div className="text-center py-12 text-zinc-400 font-bold">
+        Loading staff profile...
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="text-center py-12 text-zinc-400 font-bold">
+        Staff profile not found.
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-8">
@@ -110,8 +137,11 @@ export function StaffProfileContent({ id }: { id: string }) {
           <div className="max-h-[90vh] overflow-y-auto p-12 custom-scrollbar bg-white">
             <StaffForm
               isDialog
-              initialValues={mockInitialValues}
-              onSuccess={() => setIsEditDialogOpen(false)}
+              initialValues={user}
+              onSuccess={() => {
+                setIsEditDialogOpen(false)
+                fetchUser()
+              }}
             />
           </div>
         </DialogContent>
@@ -123,22 +153,25 @@ export function StaffProfileContent({ id }: { id: string }) {
           <Card className="border-none shadow-sm rounded-3xl bg-white overflow-hidden text-center">
             <CardContent className="p-8">
               <div className="relative mx-auto w-fit mb-6">
-                <Avatar className="h-32 w-32 rounded-[2.5rem] border-4 border-zinc-50 shadow-sm bg-zinc-100">
-                  <AvatarFallback className="text-4xl">JC</AvatarFallback>
+                <Avatar className="h-32 w-32 rounded-[2.5rem] border-4 border-zinc-50 shadow-sm bg-zinc-100 overflow-hidden">
+                  <AvatarImage src={user.avatarUrl} className="object-cover" />
+                  <AvatarFallback className="text-4xl font-black bg-primary/5 text-primary">
+                    {user.name ? user.name[0].toUpperCase() : "U"}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="absolute bottom-2 right-2 h-5 w-5 rounded-full border-4 border-white bg-primary" />
               </div>
-              <h3 className="text-2xl font-black text-zinc-900 mb-1">Julian Casablancas</h3>
-              <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-8">Senior Sales Agent</p>
+              <h3 className="text-2xl font-black text-zinc-900 mb-1">{user.name}</h3>
+              <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-8">{user.role}</p>
 
               <div className="grid grid-cols-2 gap-4 py-6 border-y border-zinc-50">
                 <div>
                   <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1">Properties</p>
-                  <p className="text-xl font-black text-zinc-900">42</p>
+                  <p className="text-xl font-black text-zinc-900">{user.properties || 0}</p>
                 </div>
                 <div>
                   <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1">Requests</p>
-                  <p className="text-xl font-black text-zinc-900">3</p>
+                  <p className="text-xl font-black text-zinc-900">{mockRequests.length}</p>
                 </div>
               </div>
             </CardContent>
@@ -154,7 +187,7 @@ export function StaffProfileContent({ id }: { id: string }) {
                   </div>
                   <div className="flex flex-col">
                     <span className="text-[10px] font-bold text-zinc-400 uppercase">Email</span>
-                    <span className="text-sm font-bold text-zinc-900">julian@VPG.estate</span>
+                    <span className="text-sm font-bold text-zinc-900 break-all">{user.email}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -163,7 +196,7 @@ export function StaffProfileContent({ id }: { id: string }) {
                   </div>
                   <div className="flex flex-col">
                     <span className="text-[10px] font-bold text-zinc-400 uppercase">Phone</span>
-                    <span className="text-sm font-bold text-zinc-900">+34 600 123 456</span>
+                    <span className="text-sm font-bold text-zinc-900">{user.phone || "-"}</span>
                   </div>
                 </div>
               </div>
@@ -186,29 +219,29 @@ export function StaffProfileContent({ id }: { id: string }) {
             <TabsContent value="overview">
               <Card className="border-none shadow-sm rounded-3xl bg-white overflow-hidden">
                 <CardContent className="p-10">
-                  <div className="grid grid-cols-2 gap-y-10 mb-12">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-10 gap-x-6 mb-12">
                     <div>
                       <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Full Name</p>
-                      <p className="text-lg font-bold text-zinc-900">Julian Casablancas</p>
+                      <p className="text-lg font-bold text-zinc-900">{user.name}</p>
                     </div>
                     <div>
                       <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Role</p>
-                      <p className="text-lg font-bold text-zinc-900">Senior Sales Agent</p>
+                      <p className="text-lg font-bold text-zinc-900 capitalize">{user.role}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Gender</p>
-                      <p className="text-lg font-bold text-zinc-900">Male</p>
+                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Status</p>
+                      <p className="text-lg font-bold text-zinc-900">{user.isActive ? "Active" : "Inactive"}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Date of Birth</p>
-                      <p className="text-lg font-bold text-zinc-900">1985-06-15</p>
+                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Phone</p>
+                      <p className="text-lg font-bold text-zinc-900">{user.phone || "-"}</p>
                     </div>
                   </div>
 
                   <div>
                     <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Bio / Notes</p>
                     <p className="text-zinc-500 leading-relaxed">
-                      Senior Sales Agent specializing in luxury properties in VPG. Over 5 years of experience in the local market. Known for excellent client relationships and closing high-value deals.
+                      Active corporate team member of VPG Estate mapped to the {user.role} role. Equipped with complete platform authorization to manage property assets and process corporate estate resources.
                     </p>
                   </div>
                 </CardContent>

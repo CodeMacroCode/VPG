@@ -1,13 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ArrowLeft, Mail, Phone, User, Eye, EyeOff, Briefcase, Network, Building } from "lucide-react"
+import { ArrowLeft, Mail, Phone, User, Eye, EyeOff, Briefcase, Network, Building, Camera } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import { useRoles } from "@/hooks/use-roles"
 import { useUnits } from "@/hooks/use-units"
@@ -37,6 +37,9 @@ export function StaffForm({ initialValues, isDialog, onSuccess }: StaffFormProps
   const [selectedNodes, setSelectedNodes] = useState<string[]>(initialValues?.nodeIds || [])
   const [showPassword, setShowPassword] = useState(false)
 
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string>(initialValues?.avatarUrl || "")
+
   // Sync state if initialValues changes
   useEffect(() => {
     if (initialValues) {
@@ -47,8 +50,18 @@ export function StaffForm({ initialValues, isDialog, onSuccess }: StaffFormProps
       setReportsTo(initialValues.reportsTo || "none")
       setPrimaryNodeId(initialValues.primaryNodeId || "")
       setSelectedNodes(initialValues.nodeIds || [])
+      setPreviewUrl(initialValues.avatarUrl || "")
+      setProfileImageFile(null)
     }
   }, [initialValues])
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setProfileImageFile(file)
+      setPreviewUrl(URL.createObjectURL(file))
+    }
+  }
 
   const handleToggleNode = (nodeId: string) => {
     setSelectedNodes((prev) => {
@@ -78,7 +91,9 @@ export function StaffForm({ initialValues, isDialog, onSuccess }: StaffFormProps
         primaryNodeId: primaryNodeId || null,
         reportsTo: reportsTo === "none" || !reportsTo ? null : reportsTo,
       }
-
+      if (profileImageFile) {
+        payload.profileImage = profileImageFile
+      }
       if (password) {
         payload.password = password
       } else if (!initialValues) {
@@ -126,12 +141,23 @@ export function StaffForm({ initialValues, isDialog, onSuccess }: StaffFormProps
         !isDialog && "border-none shadow-sm rounded-3xl p-8 sm:p-12"
       )}>
         <div className="flex flex-col sm:flex-row gap-12 mb-12 items-start">
-          <div className="relative group">
-            <Avatar className="h-32 w-32 rounded-[2.5rem] border-4 border-zinc-50 shadow-sm bg-zinc-100 flex items-center justify-center">
+          <div className="relative group cursor-pointer" onClick={() => document.getElementById("profile-image-upload")?.click()}>
+            <Avatar className="h-32 w-32 rounded-[2.5rem] border-4 border-zinc-50 shadow-sm bg-zinc-100 flex items-center justify-center overflow-hidden transition-all group-hover:scale-105">
+              <AvatarImage src={previewUrl} className="object-cover" />
               <AvatarFallback className="bg-primary/5 text-primary text-3xl font-black">
                 {name ? name[0].toUpperCase() : <User className="h-12 w-12 text-zinc-300" />}
               </AvatarFallback>
             </Avatar>
+            <div className="absolute inset-0 bg-black/40 rounded-[2.5rem] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <Camera className="h-8 w-8 text-white" />
+            </div>
+            <input
+              type="file"
+              id="profile-image-upload"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageChange}
+            />
           </div>
 
           <div className="flex flex-col gap-2">

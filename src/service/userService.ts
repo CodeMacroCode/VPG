@@ -31,6 +31,7 @@ export type ApiUser = {
   primaryNodeId?: PopulatedNode | string | null
   reportsTo?: PopulatedUser | string | null
   isActive: boolean
+  profileImage?: string | null
   createdAt?: string
   updatedAt?: string
 }
@@ -50,6 +51,28 @@ export type CreateUserPayload = {
   nodeIds?: string[]
   primaryNodeId?: string | null
   reportsTo?: string | null
+  profileImage?: File | string | null
+}
+
+const convertToFormData = (obj: any): FormData => {
+  const formData = new FormData()
+  for (const key in obj) {
+    if (obj[key] === undefined) continue
+    
+    const value = obj[key]
+    if (value === null) {
+      formData.append(key, "")
+    } else if (Array.isArray(value)) {
+      value.forEach((val) => {
+        formData.append(`${key}[]`, val)
+      })
+    } else if (typeof value === "boolean") {
+      formData.append(key, value ? "true" : "false")
+    } else {
+      formData.append(key, value)
+    }
+  }
+  return formData
 }
 
 export const userService = {
@@ -57,14 +80,28 @@ export const userService = {
     const response = await apiClient.get<any, any>("/user")
     return Array.isArray(response) ? response : (response?.data || [])
   },
+  async getUserById(id: string): Promise<ApiUser> {
+    const response = await apiClient.get<any, any>(`/user/${id}`)
+    return response?.data || response
+  },
 
   async createUser(payload: CreateUserPayload): Promise<ApiUser> {
-    const response = await apiClient.post<any, any>("/user", payload)
+    const formData = convertToFormData(payload)
+    const response = await apiClient.post<any, any>("/user", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
     return response?.data || response
   },
 
   async updateUser(id: string, payload: Partial<CreateUserPayload> & { isActive?: boolean }): Promise<ApiUser> {
-    const response = await apiClient.patch<any, any>(`/user/${id}`, payload)
+    const formData = convertToFormData(payload)
+    const response = await apiClient.patch<any, any>(`/user/${id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
     return response?.data || response
   },
 

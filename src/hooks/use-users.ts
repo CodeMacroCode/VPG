@@ -49,10 +49,12 @@ const mapApiUserToStaff = (apiUser: ApiUser): Staff => {
     primaryNodeId,
     reportsTo,
     isActive: apiUser.isActive ?? true,
+    avatarUrl: apiUser.profileImage ? `${process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/api$/, "")}${apiUser.profileImage}` : undefined,
   }
 }
 
-export function useUsers() {
+export function useUsers(options?: { skipFetch?: boolean }) {
+  const skipFetch = options?.skipFetch ?? false
   const [allUsers, setAllUsers] = useState<Staff[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -178,12 +180,27 @@ export function useUsers() {
 
   const calledRef = useRef(false)
 
+  const getUserById = useCallback(async (id: string) => {
+    setIsLoading(true)
+    try {
+      const apiUser = await userService.getUserById(id)
+      return mapApiUserToStaff(apiUser)
+    } catch (err: any) {
+      const msg = err.message || "Failed to fetch user"
+      toast.error(msg)
+      throw err
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
   // Fetch on mount
   useEffect(() => {
+    if (skipFetch) return
     if (calledRef.current) return
     calledRef.current = true
     fetchUsers()
-  }, [fetchUsers])
+  }, [fetchUsers, skipFetch])
 
   return {
     users: paginatedUsers,
@@ -195,6 +212,7 @@ export function useUsers() {
     editUser,
     removeUser,
     toggleUserStatus,
+    getUserById,
     page,
     setPage,
     limit,
