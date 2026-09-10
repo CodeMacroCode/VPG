@@ -36,6 +36,8 @@ export type Staff = {
   dateOfJoining?: string
   designation?: string
   bloodGroup?: string
+  nodeNames?: string[]
+  primaryNodeName?: string
 }
 
 const mapApiUserToStaff = (apiUser: ApiUser): Staff => {
@@ -46,10 +48,20 @@ const mapApiUserToStaff = (apiUser: ApiUser): Staff => {
   const nodeIds = Array.isArray(apiUser.nodeIds)
     ? apiUser.nodeIds.map((n) => (typeof n === "object" && n ? n._id : String(n)))
     : []
+
+  const nodeNames = Array.isArray(apiUser.nodeIds)
+    ? apiUser.nodeIds
+        .map((n) => (typeof n === "object" && n ? n.name : ""))
+        .filter(Boolean)
+    : []
     
   const primaryNodeId = typeof apiUser.primaryNodeId === "object" && apiUser.primaryNodeId
     ? apiUser.primaryNodeId._id
     : String(apiUser.primaryNodeId || "")
+
+  const primaryNodeName = typeof apiUser.primaryNodeId === "object" && apiUser.primaryNodeId
+    ? apiUser.primaryNodeId.name
+    : undefined
 
   const reportsTo = typeof apiUser.reportsTo === "object" && apiUser.reportsTo
     ? apiUser.reportsTo._id
@@ -131,6 +143,8 @@ const mapApiUserToStaff = (apiUser: ApiUser): Staff => {
     dateOfJoining: apiUser.dateOfJoining,
     designation: apiUser.designation,
     bloodGroup: apiUser.bloodGroup,
+    nodeNames,
+    primaryNodeName,
   }
 }
 

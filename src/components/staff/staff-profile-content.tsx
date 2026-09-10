@@ -1,7 +1,21 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { ArrowLeft, Edit2, Mail, Phone, MoreVertical } from "lucide-react"
+import { 
+  ArrowLeft, 
+  Edit2, 
+  Mail, 
+  Phone, 
+  MoreVertical, 
+  Briefcase, 
+  Building2, 
+  CreditCard, 
+  Heart, 
+  PhoneCall,
+  Calendar,
+  IndianRupee,
+  ShieldCheck
+} from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -187,7 +201,16 @@ export function StaffProfileContent({ id }: { id: string }) {
                 <div className="absolute bottom-2 right-2 h-5 w-5 rounded-full border-4 border-white bg-primary" />
               </div>
               <h3 className="text-2xl font-black text-zinc-900 mb-1">{user.name}</h3>
-              <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-8">{user.role}</p>
+              <div className="flex flex-wrap items-center justify-center gap-1.5 mb-6">
+                <Badge variant="outline" className="px-3 py-1 font-bold text-[10px] uppercase bg-primary/10 text-primary border-primary/20 rounded-full">
+                  {user.role}
+                </Badge>
+                {user.designation && (
+                  <Badge variant="outline" className="px-3 py-1 font-bold text-[10px] bg-zinc-100 text-zinc-700 border-zinc-200 rounded-full">
+                    {user.designation}
+                  </Badge>
+                )}
+              </div>
 
               <div className="grid grid-cols-2 gap-4 py-6 border-y border-zinc-50">
                 <div>
@@ -204,19 +227,20 @@ export function StaffProfileContent({ id }: { id: string }) {
 
           <Card className="border-none shadow-sm rounded-3xl bg-white overflow-hidden">
             <CardContent className="p-8">
-              <h4 className="text-xs font-bold text-zinc-900 uppercase tracking-wider mb-6">Contact Details</h4>
-              <div className="space-y-6">
+              <h4 className="text-xs font-bold text-zinc-900 uppercase tracking-wider mb-6">Contact & Personal</h4>
+              <div className="space-y-5">
                 <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-xl bg-zinc-50 flex items-center justify-center text-zinc-400">
+                  <div className="h-10 w-10 rounded-xl bg-zinc-50 flex items-center justify-center text-zinc-400 shrink-0">
                     <Mail className="h-5 w-5" />
                   </div>
-                  <div className="flex flex-col">
+                  <div className="flex flex-col min-w-0">
                     <span className="text-[10px] font-bold text-zinc-400 uppercase">Email</span>
                     <span className="text-sm font-bold text-zinc-900 break-all">{user.email}</span>
                   </div>
                 </div>
+
                 <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-xl bg-zinc-50 flex items-center justify-center text-zinc-400">
+                  <div className="h-10 w-10 rounded-xl bg-zinc-50 flex items-center justify-center text-zinc-400 shrink-0">
                     <Phone className="h-5 w-5" />
                   </div>
                   <div className="flex flex-col">
@@ -224,6 +248,46 @@ export function StaffProfileContent({ id }: { id: string }) {
                     <span className="text-sm font-bold text-zinc-900">{user.phone || "-"}</span>
                   </div>
                 </div>
+
+                {user.emergencyContactNumber && (
+                  <div className="flex items-center gap-4">
+                    <div className="h-10 w-10 rounded-xl bg-rose-50 flex items-center justify-center text-rose-500 shrink-0">
+                      <PhoneCall className="h-5 w-5" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-bold text-zinc-400 uppercase">Emergency Contact</span>
+                      <span className="text-sm font-bold text-zinc-900">{user.emergencyContactNumber}</span>
+                    </div>
+                  </div>
+                )}
+
+                {user.bloodGroup && (
+                  <div className="flex items-center gap-4">
+                    <div className="h-10 w-10 rounded-xl bg-red-50 flex items-center justify-center text-red-500 shrink-0">
+                      <Heart className="h-5 w-5" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-bold text-zinc-400 uppercase">Blood Group</span>
+                      <span className="text-sm font-bold text-rose-600">{user.bloodGroup}</span>
+                    </div>
+                  </div>
+                )}
+
+                {user.aadhaarNumber && (
+                  <div className="flex items-center gap-4">
+                    <div className="h-10 w-10 rounded-xl bg-zinc-50 flex items-center justify-center text-zinc-400 shrink-0">
+                      <CreditCard className="h-5 w-5" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-bold text-zinc-400 uppercase">Aadhaar Card</span>
+                      <span className="text-sm font-bold text-zinc-900 font-mono tracking-wider">
+                        {user.aadhaarNumber.length === 12
+                          ? `${user.aadhaarNumber.slice(0, 4)} ${user.aadhaarNumber.slice(4, 8)} ${user.aadhaarNumber.slice(8)}`
+                          : user.aadhaarNumber}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -243,46 +307,113 @@ export function StaffProfileContent({ id }: { id: string }) {
 
             <TabsContent value="overview">
               <Card className="border-none shadow-sm rounded-3xl bg-white overflow-hidden">
-                <CardContent className="p-10">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-10 gap-x-6 mb-12">
-                    <div>
-                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Full Name</p>
-                      <p className="text-lg font-bold text-zinc-900">{user.name}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Role</p>
-                      <p className="text-lg font-bold text-zinc-900 capitalize">{user.role}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Status</p>
-                      <p className="text-lg font-bold text-zinc-900">{user.isActive ? "Active" : "Inactive"}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Phone</p>
-                      <p className="text-lg font-bold text-zinc-900">{user.phone || "-"}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Geofence Boundary</p>
-                      <p className="text-lg font-bold text-zinc-900">{user.geofenceName || "-"}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Assigned Project</p>
-                      <p className="text-lg font-bold text-zinc-900">{user.projectName || "-"}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Reporter</p>
-                      <p className="text-lg font-bold text-zinc-900">{user.reportsToName || "-"}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Attendance Policy</p>
-                      <p className="text-lg font-bold text-zinc-900">{user.attendancePolicyName || "-"}</p>
+                <CardContent className="p-10 space-y-10">
+                  {/* Section 1: Employment & Professional Details */}
+                  <div>
+                    <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+                      <Briefcase className="h-4 w-4 text-primary" /> Professional & Employment
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-8 gap-x-6">
+                      <div>
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">Full Name</p>
+                        <p className="text-base font-bold text-zinc-900">{user.name}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">Role</p>
+                        <p className="text-base font-bold text-zinc-900 capitalize">{user.role}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">Designation</p>
+                        <p className="text-base font-bold text-zinc-900">{user.designation || "-"}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">Status</p>
+                        <div className="flex items-center gap-2">
+                          <span className={`h-2.5 w-2.5 rounded-full ${user.isActive ? "bg-emerald-500" : "bg-zinc-400"}`} />
+                          <p className="text-base font-bold text-zinc-900">{user.isActive ? "Active" : "Inactive"}</p>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">Date of Joining</p>
+                        <p className="text-base font-bold text-zinc-900">
+                          {user.dateOfJoining
+                            ? new Date(user.dateOfJoining).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
+                            : "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">Monthly Salary</p>
+                        <p className="text-base font-black text-zinc-900">
+                          {user.salary !== undefined && user.salary !== null && (user.salary as any) !== ""
+                            ? `₹${Number(user.salary).toLocaleString("en-IN")}`
+                            : "-"}
+                        </p>
+                      </div>
                     </div>
                   </div>
 
+                  <hr className="border-zinc-100" />
+
+                  {/* Section 2: Work Allocation & Operations */}
+                  <div>
+                    <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+                      <Building2 className="h-4 w-4 text-primary" /> Work Allocation & Operations
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-8 gap-x-6">
+                      <div className="sm:col-span-2 lg:col-span-1">
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">Assigned Project(s)</p>
+                        {user.projectNames && Object.keys(user.projectNames).length > 0 ? (
+                          <div className="flex flex-wrap gap-1.5 mt-1">
+                            {Object.values(user.projectNames).map((pName, idx) => (
+                              <Badge key={idx} variant="secondary" className="font-bold text-xs bg-zinc-100 text-zinc-800">
+                                {pName}
+                              </Badge>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-base font-bold text-zinc-900">{user.projectName || "-"}</p>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">Geofence Boundary</p>
+                        <p className="text-base font-bold text-zinc-900">{user.geofenceName || "-"}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">Reporting Manager (Reporter)</p>
+                        <p className="text-base font-bold text-zinc-900">{user.reportsToName || "-"}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">Attendance Policy</p>
+                        <p className="text-base font-bold text-zinc-900">{user.attendancePolicyName || "-"}</p>
+                      </div>
+                      {user.primaryNodeName && (
+                        <div>
+                          <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">Primary Business Unit</p>
+                          <p className="text-base font-bold text-zinc-900">{user.primaryNodeName}</p>
+                        </div>
+                      )}
+                      {user.nodeNames && user.nodeNames.length > 0 && (
+                        <div>
+                          <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">Assigned Units / Nodes</p>
+                          <div className="flex flex-wrap gap-1.5 mt-1">
+                            {user.nodeNames.map((nName, idx) => (
+                              <Badge key={idx} variant="outline" className="font-bold text-xs text-zinc-700">
+                                {nName}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <hr className="border-zinc-100" />
+
+                  {/* Section 3: Bio / Notes */}
                   <div>
                     <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Bio / Notes</p>
-                    <p className="text-zinc-500 leading-relaxed">
-                      Active corporate team member of VPG Estate mapped to the {user.role} role. Equipped with complete platform authorization to manage property assets and process corporate estate resources.
+                    <p className="text-zinc-500 leading-relaxed text-sm font-medium">
+                      Active corporate team member of VPG Estate mapped to the <strong className="text-zinc-800">{user.role}</strong> role{user.designation ? ` as ${user.designation}` : ""}. Equipped with complete platform authorization to manage property assets and process corporate estate resources.
                     </p>
                   </div>
                 </CardContent>
