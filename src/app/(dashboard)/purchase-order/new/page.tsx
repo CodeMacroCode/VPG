@@ -567,22 +567,22 @@ function CreatePOContent() {
                     </div>
 
                     <div className="rounded-lg border border-zinc-200 shadow-sm overflow-x-auto">
-                      <table className="w-full text-left border-collapse min-w-[800px]">
+                      <table className="w-full text-left border-collapse min-w-[900px]">
                         <thead>
                           <tr className="bg-zinc-50 border-b border-zinc-200">
-                            <th className="px-4 py-3 text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
+                            <th className="px-4 py-3 text-[10px] font-semibold text-zinc-500 uppercase tracking-wider min-w-[220px]">
                               Item Information
                             </th>
-                            <th className="px-4 py-3 text-[10px] font-semibold text-zinc-500 uppercase tracking-wider text-center">
+                            <th className="px-4 py-3 text-[10px] font-semibold text-zinc-500 uppercase tracking-wider text-center w-[130px] min-w-[120px]">
                               Quantity
                             </th>
-                            <th className="px-4 py-3 text-[10px] font-semibold text-zinc-500 uppercase tracking-wider text-center">
+                            <th className="px-4 py-3 text-[10px] font-semibold text-zinc-500 uppercase tracking-wider text-center w-[160px] min-w-[150px]">
                               Unit Price (₹)
                             </th>
-                            <th className="px-4 py-3 text-[10px] font-semibold text-zinc-500 uppercase tracking-wider text-center">
+                            <th className="px-4 py-3 text-[10px] font-semibold text-zinc-500 uppercase tracking-wider text-center min-w-[240px]">
                               Assign Vendor
                             </th>
-                            <th className="px-4 py-3 text-[10px] font-semibold text-zinc-500 uppercase tracking-wider text-right">
+                            <th className="px-4 py-3 text-[10px] font-semibold text-zinc-500 uppercase tracking-wider text-right w-[150px] min-w-[130px]">
                               Total Amount
                             </th>
                           </tr>
@@ -593,7 +593,7 @@ function CreatePOContent() {
                               className="hover:bg-zinc-50/50 transition-colors"
                             >
                               {/* 1. Item Info */}
-                              <td className="px-4 py-3 align-middle">
+                              <td className="px-4 py-3 align-middle min-w-[220px]">
                                 <div className="flex items-center gap-3">
                                   <div className="h-8 w-8 rounded-md bg-zinc-100 flex items-center justify-center text-zinc-600 border border-zinc-200 shrink-0">
                                     <Box className="h-4 w-4" />
@@ -610,13 +610,13 @@ function CreatePOContent() {
                               </td>
 
                               {/* 3. Quantity */}
-                              <td className="px-4 py-3 align-middle text-center">
-                                <div className="relative flex items-center justify-center">
+                              <td className="px-4 py-3 align-middle text-center w-[130px] min-w-[120px]">
+                                <div className="relative flex items-center justify-center w-full min-w-[100px]">
                                   <Input
                                     type="number"
                                     min="0.001"
                                     step="any"
-                                    value={item.qty}
+                                    value={item.qty === 0 ? "" : item.qty}
                                     onWheel={(e) => e.currentTarget.blur()}
                                     onChange={(e) =>
                                       handleQtyChange(
@@ -626,39 +626,40 @@ function CreatePOContent() {
                                           : Number(e.target.value)
                                       )
                                     }
-                                    className="h-10 rounded-xl bg-white border-zinc-200 text-xs font-bold text-center pr-10 focus-visible:ring-2 focus-visible:ring-[#0A5C53]/20 focus-visible:border-[#0A5C53] transition-all shadow-sm"
+                                    className="h-10 w-full min-w-[100px] rounded-xl bg-white border-zinc-200 text-xs font-bold text-center pl-3 pr-10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus-visible:ring-2 focus-visible:ring-[#0A5C53]/20 focus-visible:border-[#0A5C53] transition-all shadow-sm"
                                   />
-                                  <span className="absolute right-3 text-[10px] font-bold text-zinc-500">
+                                  <span className="absolute right-3 text-[10px] font-bold text-zinc-500 pointer-events-none">
                                     {item.unit}
                                   </span>
                                 </div>
                               </td>
 
                               {/* 4. Unit Price */}
-                              <td className="px-4 py-3 align-middle text-center">
-                                <div className="relative flex items-center justify-center">
-                                  <div className="absolute left-3 text-xs font-bold text-zinc-500">
+                              <td className="px-4 py-3 align-middle text-center w-[160px] min-w-[150px]">
+                                <div className="relative flex items-center justify-center w-full min-w-[140px]">
+                                  <div className="absolute left-3 text-xs font-bold text-zinc-500 pointer-events-none">
                                     ₹
                                   </div>
                                   <Input
                                     type="number"
                                     min="0"
-                                    value={item.price || ""}
+                                    step="any"
+                                    value={item.price === 0 ? "" : (item.price ?? "")}
                                     placeholder="0.00"
                                     onWheel={(e) => e.currentTarget.blur()}
                                     onChange={(e) =>
                                       handlePriceChange(
                                         idx,
-                                        Number(e.target.value)
+                                        e.target.value === "" ? 0 : Number(e.target.value)
                                       )
                                     }
-                                    className="h-10 rounded-xl bg-white border-zinc-200 text-xs font-bold text-center pl-7 focus-visible:ring-2 focus-visible:ring-[#0A5C53]/20 focus-visible:border-[#0A5C53] transition-all shadow-sm"
+                                    className="h-10 w-full min-w-[140px] rounded-xl bg-white border-zinc-200 text-xs font-bold text-left pl-7 pr-3 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus-visible:ring-2 focus-visible:ring-[#0A5C53]/20 focus-visible:border-[#0A5C53] transition-all shadow-sm"
                                   />
                                 </div>
                               </td>
 
                               {/* 5. Vendor */}
-                              <td className="px-4 py-3 align-middle text-center">
+                              <td className="px-4 py-3 align-middle text-center min-w-[240px]">
                                 <Select
                                   value={item.assignedVendorId || ""}
                                   onValueChange={(val) =>
@@ -697,10 +698,10 @@ function CreatePOContent() {
                               </td>
 
                               {/* 6. Total Amount */}
-                              <td className="px-4 py-3 align-middle text-right">
+                              <td className="px-4 py-3 align-middle text-right w-[150px] min-w-[130px]">
                                 <div className="flex items-center justify-end gap-3">
                                   <div className="flex flex-col items-end">
-                                    <span className="text-sm font-black text-zinc-900">
+                                    <span className="text-sm font-black text-zinc-900 whitespace-nowrap">
                                       ₹
                                       {(
                                         item.qty * (item.price || 0)

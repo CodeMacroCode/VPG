@@ -512,7 +512,7 @@ export function CreatePODialog({
                                         : Number(e.target.value)
                                     )
                                   }
-                                  className="h-8 w-20 rounded-lg bg-zinc-50 border-zinc-200 text-center font-bold text-xs disabled:bg-zinc-100"
+                                  className="h-8 w-24 rounded-lg bg-zinc-50 border-zinc-200 text-center font-bold text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none disabled:bg-zinc-100"
                                 />
                                 <span className="text-[10px] font-bold text-zinc-500">
                                   {item.unit}
@@ -524,6 +524,7 @@ export function CreatePODialog({
                                 <Input
                                   type="number"
                                   min="0"
+                                  step="any"
                                   placeholder="0"
                                   value={item.price}
                                   disabled={item.poCreated}
@@ -536,7 +537,7 @@ export function CreatePODialog({
                                         : Number(e.target.value)
                                     )
                                   }
-                                  className="h-8 w-20 rounded-lg bg-zinc-50 border-zinc-200 text-center font-bold text-xs disabled:bg-zinc-100"
+                                  className="h-8 w-24 rounded-lg bg-zinc-50 border-zinc-200 text-center font-bold text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none disabled:bg-zinc-100"
                                 />
                               </div>
                             </td>
