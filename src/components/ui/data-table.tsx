@@ -126,39 +126,7 @@ export function DataTable<TData, TValue>({
     },
   });
 
-  // Virtual scroll
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  const [scrollTop, setScrollTop] = React.useState(0);
-  const [containerHeight, setContainerHeight] = React.useState(600);
-
-  React.useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    const handleScroll = () => setScrollTop(container.scrollTop);
-    const ro = new ResizeObserver((entries) => {
-      for (const entry of entries)
-        setContainerHeight(entry.contentRect.height || 600);
-    });
-    container.addEventListener("scroll", handleScroll, { passive: true });
-    ro.observe(container);
-    return () => {
-      container.removeEventListener("scroll", handleScroll);
-      ro.disconnect();
-    };
-  }, []);
-
   const rows = table.getRowModel().rows || [];
-  const rowHeight = 72;
-  const overscan = 5;
-  const totalRows = rows.length;
-  const startIndex = Math.max(0, Math.floor(scrollTop / rowHeight) - overscan);
-  const endIndex = Math.min(
-    totalRows,
-    Math.ceil((scrollTop + containerHeight) / rowHeight) + overscan,
-  );
-  const visibleRows = rows.slice(startIndex, endIndex);
-  const paddingTop = startIndex * rowHeight;
-  const paddingBottom = (totalRows - endIndex) * rowHeight;
 
   // Computed pagination info
   const currentPageIndex = isServerSide
@@ -209,7 +177,6 @@ export function DataTable<TData, TValue>({
 
       {/* Table */}
       <div
-        ref={containerRef}
         className="w-full overflow-auto max-h-[600px] border border-slate-200 rounded-xl shadow-sm bg-white relative scrollbar-thin scrollbar-thumb-zinc-200 scrollbar-track-transparent"
       >
         <table className="w-full caption-bottom text-sm border-separate border-spacing-0">
@@ -248,13 +215,8 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {paddingTop > 0 && (
-              <tr style={{ height: `${paddingTop}px` }}>
-                <td colSpan={columns.length} className="p-0 border-none" />
-              </tr>
-            )}
-             {visibleRows.length ? (
-               visibleRows.map((row) => {
+             {rows.length ? (
+               rows.map((row) => {
                  const blocked = isRowBlocked(row.original);
                  return (
                    <TableRow
@@ -290,11 +252,6 @@ export function DataTable<TData, TValue>({
                   No results.
                 </TableCell>
               </TableRow>
-            )}
-            {paddingBottom > 0 && (
-              <tr style={{ height: `${paddingBottom}px` }}>
-                <td colSpan={columns.length} className="p-0 border-none" />
-              </tr>
             )}
           </TableBody>
         </table>

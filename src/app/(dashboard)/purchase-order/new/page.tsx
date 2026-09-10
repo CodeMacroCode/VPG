@@ -566,8 +566,8 @@ function CreatePOContent() {
                       </Badge>
                     </div>
 
-                    <div className="rounded-lg border border-zinc-200 shadow-sm">
-                      <table className="w-full text-left border-collapse">
+                    <div className="rounded-lg border border-zinc-200 shadow-sm overflow-x-auto">
+                      <table className="w-full text-left border-collapse min-w-[800px]">
                         <thead>
                           <tr className="bg-zinc-50 border-b border-zinc-200">
                             <th className="px-4 py-3 text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
